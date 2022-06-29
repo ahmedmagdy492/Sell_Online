@@ -26,8 +26,6 @@ namespace Sell_Online.Models
         public ICollection<Notification> Notifications { get; set; }
         public ICollection<Post> Posts { get; set; }
         public ICollection<PhoneNumbers> PhoneNumbers { get; set; }
-        public ICollection<Message> Messages { get; set; }
-        public ICollection<UserUpvotes> UpvotedToMe { get; set; }
-        public ICollection<UserUpvotes> MyUpvotes { get; set; }
+        public ICollection<Chat> Chats { get; set; }
     }
 }

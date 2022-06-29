@@ -21,6 +21,9 @@ namespace Sell_Online.Models
         public DateTime? EditDate { get; set; }
         public short? StateID { get; set; }
         public DateTime? SoldDate { get; set; }
+        public string UserID { get; set; }
+
+        public User User { get; set; }
 
         public PostStates PostStates { get; set; }
         public ICollection<PostImages> PostImages { get; set; }
