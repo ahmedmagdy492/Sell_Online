@@ -32,6 +32,9 @@ namespace Sell_Online.EntityConfig
 
             builder.HasMany(i => i.PostViews)
                 .WithOne(i => i.Post);
+
+            builder.HasOne(i => i.PostCategory)
+                .WithMany(i => i.Posts);
         }
     }
 }

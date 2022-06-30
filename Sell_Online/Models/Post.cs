@@ -22,9 +22,11 @@ namespace Sell_Online.Models
         public short? StateID { get; set; }
         public DateTime? SoldDate { get; set; }
         public string UserID { get; set; }
+        public long? CategoryID { get; set; }
 
         public User User { get; set; }
 
+        public PostCategory PostCategory { get; set; }
         public PostStates PostStates { get; set; }
         public ICollection<PostImages> PostImages { get; set; }
         public ICollection<PostViews> PostViews { get; set; }
