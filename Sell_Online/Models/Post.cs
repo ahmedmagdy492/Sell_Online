@@ -8,11 +8,6 @@ namespace Sell_Online.Models
 {
     public class Post
     {
-        public Post()
-        {
-            PostID = Guid.NewGuid().ToString();
-        }
-
         public string PostID { get; set; }
         public string Title { get; set; }
         public string Content { get; set; }

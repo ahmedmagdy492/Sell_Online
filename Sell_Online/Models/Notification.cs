@@ -11,7 +11,6 @@ namespace Sell_Online.Models
     {
         public Notification()
         {
-            NotificationID = Guid.NewGuid().ToString();
             NotificationDate = DateTime.Now;
         }
 

@@ -14,6 +14,7 @@ namespace Sell_Online.Mappers
         {
             return new User
             {
+                UserID = Guid.NewGuid().ToString(),
                 Email = model.Email,
                 DisplayName = model.DisplayName,
                 Country = model.Country,

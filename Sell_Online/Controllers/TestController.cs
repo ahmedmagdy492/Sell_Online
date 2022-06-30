@@ -13,6 +13,7 @@ namespace Sell_Online.Controllers
     public class TestController : ControllerBase
     {
         [Authorize]
+        [HttpGet]
         public IActionResult Test()
         {
             return Ok("Token Works");

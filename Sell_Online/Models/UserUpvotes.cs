@@ -8,11 +8,6 @@ namespace Sell_Online.Models
 {
     public class UserUpvotes
     {
-        public UserUpvotes()
-        {
-            ID = Guid.NewGuid().ToString();
-        }
-
         public string ID { get; set; }
         public string UserUpvotedID { get; set; }
         public string UserUpvoterID { get; set; }

@@ -8,11 +8,6 @@ namespace Sell_Online.Models
 {
     public class Chat
     {
-        public Chat()
-        {
-            ChatID = Guid.NewGuid().ToString();
-        }
-
         public string ChatID { get; set; }
         public string SenderID { get; set; }
         public string ReceiverID { get; set; }

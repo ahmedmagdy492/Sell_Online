@@ -11,7 +11,6 @@ namespace Sell_Online.Models
     {
         public Message()
         {
-            ID = Guid.NewGuid().ToString();
             SentDate = DateTime.Now;
         }
 

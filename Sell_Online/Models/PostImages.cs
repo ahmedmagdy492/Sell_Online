@@ -9,10 +9,6 @@ namespace Sell_Online.Models
 {
     public class PostImages
     {
-        public PostImages()
-        {
-            ID = Guid.NewGuid().ToString();
-        }
 
         [Key]
         public string ID { get; set; }
