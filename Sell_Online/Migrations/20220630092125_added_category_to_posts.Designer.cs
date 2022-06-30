@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using Sell_Online.Data;
@@ -9,9 +10,10 @@ using Sell_Online.Data;
 namespace Sell_Online.Migrations
 {
     [DbContext(typeof(AppDBContext))]
-    partial class AppDBContextModelSnapshot : ModelSnapshot
+    [Migration("20220630092125_added_category_to_posts")]
+    partial class added_category_to_posts
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -122,12 +124,12 @@ namespace Sell_Online.Migrations
                     b.Property<DateTime?>("CreationDate")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("timestamp without time zone")
-                        .HasDefaultValue(new DateTime(2022, 6, 30, 16, 36, 45, 325, DateTimeKind.Local).AddTicks(9015));
+                        .HasDefaultValue(new DateTime(2022, 6, 30, 11, 21, 24, 874, DateTimeKind.Local).AddTicks(3126));
 
                     b.Property<DateTime?>("EditDate")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("timestamp without time zone")
-                        .HasDefaultValue(new DateTime(2022, 6, 30, 16, 36, 45, 326, DateTimeKind.Local).AddTicks(7047));
+                        .HasDefaultValue(new DateTime(2022, 6, 30, 11, 21, 24, 874, DateTimeKind.Local).AddTicks(9607));
 
                     b.Property<bool?>("IsEdited")
                         .ValueGeneratedOnAdd()
@@ -143,7 +145,7 @@ namespace Sell_Online.Migrations
                     b.Property<DateTime?>("SoldDate")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("timestamp without time zone")
-                        .HasDefaultValue(new DateTime(2022, 6, 30, 16, 36, 45, 326, DateTimeKind.Local).AddTicks(7239));
+                        .HasDefaultValue(new DateTime(2022, 6, 30, 11, 21, 24, 874, DateTimeKind.Local).AddTicks(9711));
 
                     b.Property<short?>("StateID")
                         .HasColumnType("smallint");
@@ -256,9 +258,6 @@ namespace Sell_Online.Migrations
                         .HasColumnType("text");
 
                     b.Property<string>("Email")
-                        .HasColumnType("text");
-
-                    b.Property<string>("ImageExtension")
                         .HasColumnType("text");
 
                     b.Property<bool?>("IsVerified")
