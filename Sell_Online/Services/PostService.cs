@@ -93,5 +93,26 @@ namespace Sell_Online.Services
             _context.Entry(post).State = EntityState.Modified;
             return await _context.SaveChangesAsync() > 0;
         }
+
+        public async Task<bool> UpdatePost(Post post)
+        {
+            _context.Entry(post).State = EntityState.Modified;
+            return await _context.SaveChangesAsync() > 0;
+        }
+
+        public async Task<bool> AddImages(Post post, PostImages postImage)
+        {
+            if(post.PostImages != null)
+            {
+                post.PostImages.Add(postImage);
+            }
+            else
+            {
+                post.PostImages = new List<PostImages>();
+                post.PostImages.Add(postImage);
+            }
+
+            return await _context.SaveChangesAsync() > 0;
+        }
     }
 }

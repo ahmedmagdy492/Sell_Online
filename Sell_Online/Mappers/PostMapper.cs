@@ -21,5 +21,26 @@ namespace Sell_Online.Mappers
                 PostStatesStateID = (short)PostStateEnum.Open
             };
         }
+
+        public static Post MapUpdatePost(Post post, UpdatePostDTO model)
+        {
+            post.IsEdited = true;
+            post.EditDate = DateTime.Now;
+            post.Title = model.Title;
+            post.Content = model.Content;
+            post.PostCategoryID = model.CategoryID;
+
+            return post;
+        }
+
+        public static PostImages MapPostImage(UploadImageDTO model)
+        {
+            return new PostImages
+            {
+                ID = Guid.NewGuid().ToString(),
+                PostID = model.PostID,
+                ImageURL = model.Base64
+            };
+        }
     }
 }

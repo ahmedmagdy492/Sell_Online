@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
 using Sell_Online.DTO;
 using Sell_Online.Filters;
 using Sell_Online.Helpers;
@@ -20,10 +21,12 @@ namespace Sell_Online.Controllers
     public class PostController : ControllerBase
     {
         private readonly PostService _postService;
+        private readonly IConfiguration _configuration;
 
-        public PostController(PostService postService)
+        public PostController(PostService postService, IConfiguration configuration)
         {
             _postService = postService;
+            _configuration = configuration;
         }
 
         [Authorize]
@@ -74,7 +77,61 @@ namespace Sell_Online.Controllers
             if (!changeStatusResult)
                 return BadRequest(new { Message = "Post status is not updated due to a problem" });
 
+            if (status == (short)PostStateEnum.Closed)
+            {
+                // update sold date in post id
+                post.SoldDate = DateTime.Now;
+                await _postService.UpdatePost(PostMapper.MapUpdatePost(post, new UpdatePostDTO
+                {
+                    CategoryID = post.PostCategoryID,
+                    Content = post.Content,
+                    Title = post.Title,
+                }));
+            }
+
             return Ok(new { Message = "Post status has been updated successfully" });
+        }
+
+        [HttpPatch("Update")]
+        [Authorize]
+        public async Task<IActionResult> UpdatePost(UpdatePostDTO model)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ValidationHelper.ValidateInput(ModelState.Values));
+
+            var post = _postService.GetPostsBy(i => i.PostID == model.PostID, "", 1, 10).FirstOrDefault();
+
+            if (post == null)
+                return NotFound(new { Message = "Invalid Post ID or Not Found" });
+
+            var updatePost = await _postService.UpdatePost(PostMapper.MapUpdatePost(post, model));
+            if (!updatePost)
+                return BadRequest(new { Message = "Post is not updated due to a problem" });
+
+            return Ok(new { Message = "Post has been updated successfully" });
+        }
+
+        [HttpPost("Images/Upload")]
+        [Authorize]
+        public async Task<IActionResult> UploadImages(UploadImageDTO model)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ValidationHelper.ValidateInput(ModelState.Values));
+
+            var post = _postService.GetPostsBy(i => i.PostID == model.PostID, "", 1, 10).FirstOrDefault();
+
+            if (post == null)
+                return NotFound(new { Message = "Invalid Post ID or Not Found" });
+
+            Base64Converter base64Converter = new Base64Converter();
+            var imageBytes = base64Converter.ConvertFromBase64(model.Base64);
+            string fullPath = System.IO.Path.Combine(_configuration["AppSettings:ImagePath"], $"{Guid.NewGuid()}.{model.ImageType}");
+
+            System.IO.File.WriteAllBytes(fullPath, imageBytes);
+
+            var uploadResult = await _postService.AddImages(post, PostMapper.MapPostImage(model));
+
+            return Ok(new { Message = "Image has been uploaded successfully" });
         }
     }
 }
