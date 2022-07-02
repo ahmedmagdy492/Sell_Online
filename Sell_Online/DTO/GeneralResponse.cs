@@ -10,6 +10,7 @@ namespace Sell_Online.DTO
     {
         public string Message { get; set; }
         public string Token { get; set; }
+        public string UserID { get; set; }
         public string ErrorCode { get; set; }
         public List<ErrorModel> ValidationErrors { get; set; }
     }

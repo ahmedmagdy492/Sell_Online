@@ -10,9 +10,9 @@ namespace Sell_Online.Mappers
 {
     public static class UserMapper
     {
-        public static User MapUser(RegisterUserDTO model)
+        public static User MapCreateUser(RegisterUserDTO model)
         {
-            return new User
+            var user = new User
             {
                 UserID = Guid.NewGuid().ToString(),
                 Email = model.Email,
@@ -23,6 +23,91 @@ namespace Sell_Online.Mappers
                 Password = model.Password,
                 ProfileImageURL = model.ProfileiImage
             };
+
+            user.PhoneNumbers = new List<PhoneNumbers>
+            {
+                new PhoneNumbers
+                {
+                    ID = Guid.NewGuid().ToString(),
+                    UserID = user.UserID,
+                    PhoneNumber = model.PhoneNumber1
+                }
+            };
+
+            user.PhoneNumbers.Add(new PhoneNumbers
+            {
+                ID = Guid.NewGuid().ToString(),
+                UserID = user.UserID,
+                PhoneNumber = model.PhoneNumber2
+            });
+
+            return user;
+        }
+
+        public static User MapUpdateUser(User user, UpdateUserDTO model)
+        {
+            user.Country = model.Country;
+            user.City = model.City;
+            user.District = model.District;
+
+            if(user.PhoneNumbers != null)
+            {
+                var phoneNumber1 = user.PhoneNumbers.FirstOrDefault();
+
+                if(phoneNumber1 != null)
+                {
+                    phoneNumber1.PhoneNumber = model.PhoneNumber1;
+                }
+                else
+                {
+                    user.PhoneNumbers.Add(new PhoneNumbers
+                    {
+                        UserID = user.UserID,
+                        ID = Guid.NewGuid().ToString(),
+                        PhoneNumber = model.PhoneNumber1
+                    });
+                }
+
+                var phoneNumber2 = user.PhoneNumbers.LastOrDefault();
+
+                if(phoneNumber2 != null)
+                {
+                    phoneNumber2.PhoneNumber = model.PhoneNumber2;
+                }
+                else
+                {
+                    user.PhoneNumbers.Add(new PhoneNumbers
+                    {
+                        UserID = user.UserID,
+                        PhoneNumber = model.PhoneNumber2,
+                        ID = Guid.NewGuid().ToString()
+                    });
+                }
+            }
+            else
+            {
+                user.PhoneNumbers = new List<PhoneNumbers>
+                {
+                    new PhoneNumbers
+                    {
+                        ID = Guid.NewGuid().ToString(),
+                        UserID = user.UserID,
+                        PhoneNumber = model.PhoneNumber1
+                    }
+                };
+
+                user.PhoneNumbers = new List<PhoneNumbers>
+                {
+                    new PhoneNumbers
+                    {
+                        ID = Guid.NewGuid().ToString(),
+                        UserID = user.UserID,
+                        PhoneNumber = model.PhoneNumber2
+                    }
+                };
+            }
+
+            return user;
         }
     }
 }

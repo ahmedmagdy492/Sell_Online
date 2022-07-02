@@ -31,5 +31,9 @@ namespace Sell_Online.DTO
         public string City { get; set; }
         [Required]
         public string District { get; set; }
+        [Required]
+        [RegularExpression("^[0-9]{11}$", ErrorMessage = "Phone Number 1 Should Be exactly 11 digits")]
+        public string PhoneNumber1 { get; set; }
+        public string PhoneNumber2 { get; set; }
     }
 }

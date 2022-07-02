@@ -19,15 +19,17 @@ namespace Sell_Online.Services
             _context = context;
         }
 
-        public List<User> GetUserBy(Func<User, bool> condition)
+        public List<User> GetUserBy(Func<User, bool> condition, string include = "")
         {
-            return _context.Users.Where(condition).ToList();
+            if (include == "")
+                return _context.Users.Where(condition).ToList();
+            return _context.Users.Include(include).Where(condition).ToList();
         }
 
-        public bool CreateUser(User user)
+        public async Task<bool> CreateUser(User user)
         {
             _context.Users.Add(user);
-            return _context.SaveChanges() > 0;
+            return (await _context.SaveChangesAsync()) > 0;
         }
 
 
@@ -38,11 +40,13 @@ namespace Sell_Online.Services
         /// New Password: should be Hashed
         /// </param>
         /// <returns>whether the operation were successfull or not</returns>
-        public bool ChangePassword(User user, string newPassword)
+        public async Task<bool> ChangePassword(User user, string newPassword)
         {
             user.Password = newPassword;
             _context.Entry(user).State = EntityState.Modified;
-            return _context.SaveChanges() > 0;
+            return (await _context.SaveChangesAsync()) > 0;
         }
+
+
     }
 }

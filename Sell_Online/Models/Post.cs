@@ -14,10 +14,10 @@ namespace Sell_Online.Models
         public DateTime? CreationDate { get; set; }
         public bool? IsEdited { get; set; }
         public DateTime? EditDate { get; set; }
-        public short? StateID { get; set; }
+        public short? PostStatesStateID { get; set; }
         public DateTime? SoldDate { get; set; }
         public string UserID { get; set; }
-        public long? CategoryID { get; set; }
+        public long? PostCategoryID { get; set; }
 
         public User User { get; set; }
 

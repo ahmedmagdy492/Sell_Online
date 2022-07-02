@@ -10,19 +10,19 @@ namespace Sell_Online.Helpers
 {
     public static class ValidationHelper
     {
-        public static GeneralResponse ValidateInput(ModelStateDictionary.ValueEnumerable model)
+        public static object ValidateInput(ModelStateDictionary.ValueEnumerable model)
         {
-            var errorModel = new GeneralResponse
+            var errorModel = new
             {
                 ErrorCode = Guid.NewGuid().ToString(),
-                ValidationErrors = new List<ErrorModel>()
+                ValidationErrors = new List<object>()
             };
 
             foreach(var item in model)
             {
                 foreach(var error in item.Errors)
                 {
-                    errorModel.ValidationErrors.Add(new ErrorModel
+                    errorModel.ValidationErrors.Add(new
                     {
                         Message = error.ErrorMessage
                     });

@@ -56,15 +56,16 @@ namespace Sell_Online.Controllers
             JwtGenerator jwtGenerator = new JwtGenerator(_configuration);
             string token = jwtGenerator.GenerateToken(userObject);
 
-            return Ok(new GeneralResponse
+            return Ok(new
             {
                 Message = userObject.IsVerified == false ? "Please Verify your Email" : "Logged In",
-                Token = token
+                Token = token,
+                user.FirstOrDefault().UserID
             });
         }
 
         [HttpPost("Register")]
-        public IActionResult Register(RegisterUserDTO registerUserDTO)
+        public async Task<IActionResult> Register(RegisterUserDTO registerUserDTO)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ValidationHelper.ValidateInput(ModelState.Values));
@@ -72,11 +73,11 @@ namespace Sell_Online.Controllers
             var user = _authService.GetUserBy(u => u.Email == registerUserDTO.Email);
 
             if(user.FirstOrDefault() != null)
-                return BadRequest(new GeneralResponse
+                return BadRequest(new 
                 {
-                    ValidationErrors = new List<ErrorModel>
+                    ValidationErrors = new List<object>
                     {
-                        new ErrorModel
+                        new
                         {
                             Message = "Email is Already Taken"
                         }
@@ -85,10 +86,10 @@ namespace Sell_Online.Controllers
 
             registerUserDTO.Password = _sha256Hasher.Hash(registerUserDTO.Password);
 
-            var created = _authService.CreateUser(Mappers.UserMapper.MapUser(registerUserDTO));
+            var created = await _authService.CreateUser(Mappers.UserMapper.MapCreateUser(registerUserDTO));
 
             if (!created)
-                return BadRequest(new GeneralResponse
+                return BadRequest(new
                 {
                     Message = "User is not Created due to a problem"
                 });
@@ -101,7 +102,7 @@ namespace Sell_Online.Controllers
 
             System.IO.File.WriteAllBytes(filePath, imageBytes);
 
-            return Created("", new GeneralResponse
+            return Created("", new
             {
                 Message = "User has been Created Successfully"
             });
@@ -109,7 +110,7 @@ namespace Sell_Online.Controllers
 
         [HttpPost("ChangePassword")]
         [Authorize]
-        public IActionResult ChangePassword(ChangePasswordDTO changePasswordDTO)
+        public async Task<IActionResult> ChangePassword(ChangePasswordDTO changePasswordDTO)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ValidationHelper.ValidateInput(ModelState.Values));
@@ -118,7 +119,7 @@ namespace Sell_Online.Controllers
 
             var user = _authService.GetUserBy(u => u.UserID == userId).FirstOrDefault();
             if(user == null)
-                return NotFound(new GeneralResponse
+                return NotFound(new
                 {
                     Message = "User id is not Valid or not Found"
                 });
@@ -126,30 +127,31 @@ namespace Sell_Online.Controllers
             var hashedPassword = _sha256Hasher.Hash(changePasswordDTO.CurrentPassword);
 
             if (user.Password != hashedPassword)
-                return BadRequest(new GeneralResponse
+                return BadRequest(new
                 {
                     Message = "Current Password is incorrect",
-                    ValidationErrors = new List<ErrorModel>
+                    ValidationErrors = new List<object>
                     {
-                        new ErrorModel
+                        new
                         {
                             Message = "Current Password is incorrect"
                         }
                     }
                 });
 
-            var changePassword = _authService.ChangePassword(user, _sha256Hasher.Hash(changePasswordDTO.NewPassword));
+            var changePassword = await _authService.ChangePassword(user, _sha256Hasher.Hash(changePasswordDTO.NewPassword));
 
             if (!changePassword)
-                return BadRequest(new GeneralResponse
+                return BadRequest(new
                 {
                     Message = "Password has not changed due to a problem"
                 });
 
-            return Ok(new GeneralResponse
+            return Ok(new
             {
                 Message = "Password has been changed successfully"
             });
         }
+
     }
 }

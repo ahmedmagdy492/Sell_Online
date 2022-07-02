@@ -19,6 +19,7 @@ using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Text;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
 namespace Sell_Online
@@ -37,11 +38,20 @@ namespace Sell_Online
         {
             #region Application Service Registeration
             services.AddTransient<AuthService>();
+            services.AddTransient<UserService>();
             services.AddTransient<Sha256Hasher>();
+            services.AddTransient<PostService>();
+            services.AddTransient<CategoryService>();
             #endregion
 
 
-            services.AddControllers(options => options.Filters.Add(new ExecptionCatcherFilter()));
+            services.AddControllers(options => options.Filters.Add(new ExecptionCatcherFilter()))
+                .AddJsonOptions(config =>
+                {
+                    config.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
+                });
+                //.AddNewtonSoftJson();
+
 
             services.AddAuthentication(options =>
             {
@@ -97,7 +107,8 @@ namespace Sell_Online
             app.UseRouting();
 
             app.UseSwagger();
-            app.UseSwaggerUI(c => {
+            app.UseSwaggerUI(c =>
+            {
                 c.SwaggerEndpoint("/swagger/v1/swagger.json", "Sell Online API v1");
             });
 
