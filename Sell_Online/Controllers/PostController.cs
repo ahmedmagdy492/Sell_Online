@@ -22,11 +22,13 @@ namespace Sell_Online.Controllers
     {
         private readonly PostService _postService;
         private readonly IConfiguration _configuration;
+        private readonly NotificationService _notificationService;
 
-        public PostController(PostService postService, IConfiguration configuration)
+        public PostController(PostService postService, IConfiguration configuration, NotificationService notificationService)
         {
             _postService = postService;
             _configuration = configuration;
+            _notificationService = notificationService;
         }
 
         [Authorize]
@@ -192,6 +194,13 @@ namespace Sell_Online.Controllers
             var hasViewedPost = _postService.HasUserViewedPost(userId, postId);
             if (hasViewedPost != 0)
                 return Ok(new { Message = "No view was added" });
+
+            await _notificationService.CreateNotification(NotificationMapper.MapNotification(new CreateNotificationDTO
+            {
+                Content = $"Someone has viewed your Post {post.Title}",
+                Title = $"Someone has viewed your Post",
+                UserID = post.UserID
+            }));
 
             var addView = await _postService.ViewPost(post, userId);
             return Ok(new { Message = "View is Added", Views = hasViewedPost+1 });

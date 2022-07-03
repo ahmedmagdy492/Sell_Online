@@ -42,6 +42,7 @@ namespace Sell_Online
             services.AddTransient<Sha256Hasher>();
             services.AddTransient<PostService>();
             services.AddTransient<CategoryService>();
+            services.AddTransient<NotificationService>();
             #endregion
 
 
