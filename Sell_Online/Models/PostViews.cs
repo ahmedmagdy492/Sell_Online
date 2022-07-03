@@ -11,6 +11,7 @@ namespace Sell_Online.Models
     {
         [Key]
         public int PostViewID { get; set; }
+        public string PostID { get; set; }
         public string ViewerID { get; set; }
 
         public User User { get; set; }

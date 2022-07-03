@@ -49,6 +49,10 @@ namespace Sell_Online.Services
                     postsWithInclude = postsWithInclude.Include(s);
                 }
             }
+            else
+            {
+                postsWithInclude = postsWithInclude.Include(include);
+            }
 
             var result = postsWithInclude.OrderByDescending(i => i.CreationDate).Where(condition).Skip((pageNo - 1) * pageSize).Take(pageSize).ToList();
             result.ForEach(i =>
@@ -110,6 +114,59 @@ namespace Sell_Online.Services
             {
                 post.PostImages = new List<PostImages>();
                 post.PostImages.Add(postImage);
+            }
+
+            return await _context.SaveChangesAsync() > 0;
+        }
+
+        public List<PostImages> GetImagesOfPost(string postId)
+        {
+            return _context.PostImages.Where(i => i.PostID == postId).ToList();
+        }
+
+        public PostImages GetImageByID(string imageId, string include)
+        {
+            if(string.IsNullOrWhiteSpace(include))
+                return _context.PostImages.FirstOrDefault(i => i.ID == imageId);
+            var result = _context.PostImages.Include(include).FirstOrDefault(i => i.ID == imageId);
+
+            if(result != null && result.Post != null)
+            {
+                result.Post.PostImages = null;
+            }
+
+            return result;
+        }
+
+        public async Task<bool> RemoveImageOfPost(PostImages postImages)
+        {
+            _context.PostImages.Remove(postImages);
+            return await _context.SaveChangesAsync() > 0;
+        }
+
+        public int HasUserViewedPost(string userId, string postId)
+        {
+            return _context.PostViews.Where(i => i.ViewerID == userId && i.PostID == postId).Count();
+        }
+
+        public async Task<bool> ViewPost(Post post, string viewerId)
+        {
+            if(post.PostViews != null)
+            {
+                post.PostViews.Add(new PostViews
+                {
+                    PostID = post.PostID,
+                    ViewerID = viewerId,
+                });
+            }
+            else
+            {
+                post.PostViews = new List<PostViews>();
+                post.PostViews.Add(new PostViews
+                {
+                    PostID = post.PostID,
+                    ViewerID = viewerId,
+                });
             }
 
             return await _context.SaveChangesAsync() > 0;

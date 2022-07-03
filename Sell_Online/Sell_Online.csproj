@@ -5,6 +5,11 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Migrations\20220703113321_changedPostViewIDColTypeToString.cs" />
+    <Compile Remove="Migrations\20220703113321_changedPostViewIDColTypeToString.Designer.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="3.1.26" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="3.1.26" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="3.1.26">
