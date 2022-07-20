@@ -104,6 +104,12 @@ namespace Sell_Online.Services
             return await _context.SaveChangesAsync() > 0;
         }
 
+        public async Task<bool> DeletePost(Post post)
+        {
+            _context.Posts.Remove(post);
+            return await _context.SaveChangesAsync() > 0;
+        }
+
         public async Task<bool> AddImages(Post post, PostImages postImage)
         {
             if(post.PostImages != null)

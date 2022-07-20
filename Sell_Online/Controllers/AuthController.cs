@@ -38,6 +38,13 @@ namespace Sell_Online.Controllers
             _hostEnvironment = hostEnvironment;
         }
 
+        [Authorize]
+        [HttpGet("IsValid")]
+        public IActionResult CheckTokenValidatiy()
+        {
+            return Ok();
+        }
+
         [HttpPost("Login")]
         public IActionResult Login(LoginDTO loginDTO) 
         {

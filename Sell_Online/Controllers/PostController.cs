@@ -23,19 +23,54 @@ namespace Sell_Online.Controllers
         private readonly PostService _postService;
         private readonly IConfiguration _configuration;
         private readonly NotificationService _notificationService;
+        private readonly ImagesServices _imagesServices;
 
-        public PostController(PostService postService, IConfiguration configuration, NotificationService notificationService)
+        public PostController(PostService postService, IConfiguration configuration, NotificationService notificationService, ImagesServices imagesServices)
         {
             _postService = postService;
             _configuration = configuration;
             _notificationService = notificationService;
+            _imagesServices = imagesServices;
+        }
+
+        [Authorize]
+        [HttpGet("{postId}")]
+        public IActionResult GetPostByID([FromRoute]string postId)
+        {
+            if (string.IsNullOrWhiteSpace(postId))
+                return BadRequest(new { Message = "Invalid Post ID" });
+
+            var posts = _postService.GetPostsBy(p => p.PostID == postId, "User,PostCategory,PostImages,PostViews", 1, 10);
+            if (posts == null)
+                return NotFound(new { Message = "Post Not Found" });
+
+            return Ok(new { Message = "Success", Data = posts });
         }
 
         [Authorize]
         [HttpGet("Trending")]
         public IActionResult GetTrendingPosts(int pageNo = 1, int pageSize = 10)
         {
-            var trendingPosts = _postService.GetPostsBy(i => i.PostStatesStateID == (short)PostStateEnum.Open, "User,PostCategory,PostImages,PostViews", pageNo, pageSize);
+            var trendingPosts = _postService.GetPostsBy(i => i.PostStatesStateID == (short)PostStateEnum.Open, "User,PostCategory,PostViews", pageNo, pageSize).Select(p => new { 
+                p.PostID, 
+                p.PostStatesStateID,
+                p.PostCategoryID,
+                p.PostCategory,
+                p.PostViews,
+                p.UserID,
+                p.Content,
+                p.CreationDate,
+                p.EditDate,
+                p.IsEdited,
+                p.SoldDate,
+                p.Title,
+                User = new 
+                {
+                    p.User?.Email,
+                    p.User.DisplayName,
+                    p.UserID
+                }
+            });
 
             return Ok(new { Message = "Success", Data = trendingPosts });
         }
@@ -45,9 +80,49 @@ namespace Sell_Online.Controllers
         public IActionResult GetMyPosts(int pageNo = 1, int pageSize = 10)
         {
             var userId = User.Claims.ToList()[0].Value;
-            var posts = _postService.GetPostsBy(i => i.UserID == userId, "PostCategory", pageNo, pageSize);
+            var posts = _postService.GetPostsBy(i => i.UserID == userId, "User,PostCategory,PostViews", pageNo, pageSize).Select(p => new {
+                p.PostID,
+                p.PostStatesStateID,
+                p.PostCategoryID,
+                p.PostCategory,
+                p.PostViews,
+                p.UserID,
+                p.Content,
+                p.CreationDate,
+                p.EditDate,
+                p.IsEdited,
+                p.SoldDate,
+                p.Title,
+                User = new
+                {
+                    p.User?.Email,
+                    p.User.DisplayName,
+                    p.UserID
+                }
+            });
 
             return Ok(new { Message = "Success", Data = posts });
+        }
+
+        [Authorize]
+        [HttpDelete("Delete")]
+        public async Task<IActionResult> DeletePost(string postID)
+        {
+            if (string.IsNullOrWhiteSpace(postID))
+                return BadRequest(new { Message = "Invalid Post ID" });
+
+            Post post = _postService.GetPostsBy(p => p.PostID == postID, "", 1, 10)
+                .FirstOrDefault();
+
+            if (post == null)
+                return NotFound(new { Message = "Invalid Post ID" });
+
+            var userId = User.Claims.ToList()[0].Value;
+            if (userId != post.UserID)
+                return Forbid();
+
+            var deleteResult = await _postService.DeletePost(post);
+            return Ok(new { Message = "Post has been deleted Successfully" });
         }
 
         
@@ -60,11 +135,12 @@ namespace Sell_Online.Controllers
 
             var userId = User.Claims.ToList()[0].Value;
 
-            var createPost = await _postService.CreatePost(PostMapper.MapCreatePost(model), userId);
+            var mapping = PostMapper.MapCreatePost(model);
+            var createPost = await _postService.CreatePost(mapping, userId);
             if (!createPost)
                 return BadRequest(new { Message = "Post is not created due to a problem" });
 
-            return Created("", new { Message = "Post has been created successfully" });
+            return Created("", new { Message = "Post has been created successfully", PostID = mapping.PostID });
         }
 
 
@@ -204,6 +280,17 @@ namespace Sell_Online.Controllers
 
             var addView = await _postService.ViewPost(post, userId);
             return Ok(new { Message = "View is Added", Views = hasViewedPost+1 });
+        }
+
+        [Authorize]
+        [HttpGet("Images")]
+        public IActionResult GetImagesOfPost(string postId)
+        {
+            if (string.IsNullOrWhiteSpace(postId))
+                return BadRequest(new { Message = "Invalid Post ID" });
+
+            var postImages = _imagesServices.GetImagesByPostID(postId);
+            return Ok(new { Message = "Success", Data = postImages });
         }
     }
 }

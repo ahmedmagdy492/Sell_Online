@@ -28,10 +28,12 @@ namespace Sell_Online.EntityConfig
                 .HasDefaultValue(DateTime.Now);
 
             builder.HasMany(i => i.PostImages)
-                .WithOne(i => i.Post);
+                .WithOne(i => i.Post)
+                .OnDelete(DeleteBehavior.Cascade);
 
             builder.HasMany(i => i.PostViews)
-                .WithOne(i => i.Post);
+                .WithOne(i => i.Post)
+                .OnDelete(DeleteBehavior.Cascade);
 
             builder.HasOne(i => i.PostCategory)
                 .WithMany(i => i.Posts);

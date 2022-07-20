@@ -43,6 +43,7 @@ namespace Sell_Online
             services.AddTransient<PostService>();
             services.AddTransient<CategoryService>();
             services.AddTransient<NotificationService>();
+            services.AddTransient<ImagesServices>();
             #endregion
 
 

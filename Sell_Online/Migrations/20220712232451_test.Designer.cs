@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using Sell_Online.Data;
@@ -9,9 +10,10 @@ using Sell_Online.Data;
 namespace Sell_Online.Migrations
 {
     [DbContext(typeof(AppDBContext))]
-    partial class AppDBContextModelSnapshot : ModelSnapshot
+    [Migration("20220712232451_test")]
+    partial class test
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -119,12 +121,12 @@ namespace Sell_Online.Migrations
                     b.Property<DateTime?>("CreationDate")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("timestamp without time zone")
-                        .HasDefaultValue(new DateTime(2022, 7, 20, 14, 23, 17, 792, DateTimeKind.Local).AddTicks(7995));
+                        .HasDefaultValue(new DateTime(2022, 7, 13, 1, 24, 51, 95, DateTimeKind.Local).AddTicks(2505));
 
                     b.Property<DateTime?>("EditDate")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("timestamp without time zone")
-                        .HasDefaultValue(new DateTime(2022, 7, 20, 14, 23, 17, 793, DateTimeKind.Local).AddTicks(4845));
+                        .HasDefaultValue(new DateTime(2022, 7, 13, 1, 24, 51, 95, DateTimeKind.Local).AddTicks(9510));
 
                     b.Property<bool?>("IsEdited")
                         .ValueGeneratedOnAdd()
@@ -140,7 +142,7 @@ namespace Sell_Online.Migrations
                     b.Property<DateTime?>("SoldDate")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("timestamp without time zone")
-                        .HasDefaultValue(new DateTime(2022, 7, 20, 14, 23, 17, 793, DateTimeKind.Local).AddTicks(4997));
+                        .HasDefaultValue(new DateTime(2022, 7, 13, 1, 24, 51, 95, DateTimeKind.Local).AddTicks(9625));
 
                     b.Property<string>("Title")
                         .HasColumnType("text");
@@ -322,16 +324,14 @@ namespace Sell_Online.Migrations
                 {
                     b.HasOne("Sell_Online.Models.Post", "Post")
                         .WithMany("PostImages")
-                        .HasForeignKey("PostID")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .HasForeignKey("PostID");
                 });
 
             modelBuilder.Entity("Sell_Online.Models.PostViews", b =>
                 {
                     b.HasOne("Sell_Online.Models.Post", "Post")
                         .WithMany("PostViews")
-                        .HasForeignKey("PostID")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .HasForeignKey("PostID");
 
                     b.HasOne("Sell_Online.Models.User", "User")
                         .WithMany()
