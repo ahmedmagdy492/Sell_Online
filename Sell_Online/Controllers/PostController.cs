@@ -47,6 +47,43 @@ namespace Sell_Online.Controllers
             return Ok(new { Message = "Success", Data = posts });
         }
 
+        // searching by either content or title
+        [Authorize]
+        [HttpGet("Search")]
+        public IActionResult Search(string query, int pageNo = 1, int pageSize = 10)
+        {
+            if (string.IsNullOrWhiteSpace(query))
+                return BadRequest(new { Message = "Invalid Search query" });
+
+            if (query.Length <= 2)
+                return BadRequest(new { Message = "Please Provide at least 3 characters in search query" });
+
+            var posts = _postService.GetPostsBy(p => p.PostStatesStateID == (short)PostStateEnum.Open
+            &&
+            (p.Title.Contains(query) || p.Content.Contains(query)), "User,PostCategory,PostViews", pageNo, pageSize).Select(p => new {
+                p.PostID,
+                p.PostStatesStateID,
+                p.PostCategoryID,
+                p.PostCategory,
+                p.PostViews,
+                p.UserID,
+                p.Content,
+                p.CreationDate,
+                p.EditDate,
+                p.IsEdited,
+                p.SoldDate,
+                p.Title,
+                User = new
+                {
+                    p.User?.Email,
+                    p.User.DisplayName,
+                    p.UserID
+                }
+            });
+
+            return Ok(new { Message = "Success", Data = posts });
+        }
+
         [Authorize]
         [HttpGet("Trending")]
         public IActionResult GetTrendingPosts(int pageNo = 1, int pageSize = 10)
