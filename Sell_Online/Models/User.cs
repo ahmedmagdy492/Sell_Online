@@ -23,5 +23,19 @@ namespace Sell_Online.Models
         public ICollection<Post> Posts { get; set; }
         public ICollection<PhoneNumbers> PhoneNumbers { get; set; }
         public ICollection<Chat> Chats { get; set; }
+
+        public object GetUserBasicInfo()
+        {
+            return new
+            {
+                DisplayName,
+                Email,
+                Country,
+                City,
+                District,
+                UserID,
+                PhoneNumbers
+            };
+        }
     }
 }

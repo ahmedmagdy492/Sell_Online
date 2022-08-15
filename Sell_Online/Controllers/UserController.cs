@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Sell_Online.DTO;
 using Sell_Online.Filters;
 using Sell_Online.Helpers;
+using Sell_Online.IServices;
 using Sell_Online.Mappers;
 using Sell_Online.Services;
 using System;
@@ -18,9 +19,9 @@ namespace Sell_Online.Controllers
     [ExecptionCatcherFilter]
     public class UserController : ControllerBase
     {
-        private readonly UserService _userService;
+        private readonly IUserService _userService;
 
-        public UserController(UserService userService)
+        public UserController(IUserService userService)
         {
             _userService = userService;
         }
@@ -34,24 +35,9 @@ namespace Sell_Online.Controllers
             var user = _userService.GetUserBy(u => u.UserID == userId, "PhoneNumbers").FirstOrDefault();
 
             if (user == null)
-                return NotFound(new
-                {
-                    Message = "User ID is Not Found or is Invalid"
-                });
+                return NotFound(new { Message = "User ID is Not Found or is Invalid" });
 
-            return Ok(new
-            {
-                Message = "Success",
-                Data = new List<object>
-                {
-                    new
-                    {
-                        user.DisplayName, user.Email,
-                        user.Country, user.City, user.District,
-                        user.UserID, user.PhoneNumbers
-                    }
-                }
-            });
+            return Ok(new { Message = "Success", Data = new List<object> { user.GetUserBasicInfo() } });
         }
 
 

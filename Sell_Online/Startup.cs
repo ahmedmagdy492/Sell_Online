@@ -41,10 +41,11 @@ namespace Sell_Online
             services.AddTransient<IAuthService, AuthService>();
             services.AddTransient<IUserService, UserService>();
             services.AddTransient<IHashingService, Sha256Hasher>();
-            services.AddTransient<PostService>();
-            services.AddTransient<CategoryService>();
-            services.AddTransient<NotificationService>();
-            services.AddTransient<ImagesServices>();
+            services.AddTransient<IPostService, PostService>();
+            services.AddTransient<ICategoryService, CategoryService>();
+            services.AddTransient<INotificationService, NotificationService>();
+            services.AddTransient<IImageService, ImageService>();
+            services.AddTransient<IViewsService, ViewsService>();
             #endregion
 
 

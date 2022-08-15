@@ -1,5 +1,6 @@
 ﻿using Sell_Online.Data;
 using Sell_Online.DTO;
+using Sell_Online.IServices;
 using Sell_Online.Models;
 using System;
 using System.Collections.Generic;
@@ -9,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace Sell_Online.Services
 {
-    public class NotificationService
+    public class NotificationService : INotificationService
     {
         private readonly AppDBContext _context;
 

@@ -1,4 +1,5 @@
 ﻿using Sell_Online.Data;
+using Sell_Online.IServices;
 using Sell_Online.Models;
 using System;
 using System.Collections.Generic;
@@ -8,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace Sell_Online.Services
 {
-    public class CategoryService
+    public class CategoryService : ICategoryService
     {
         private readonly AppDBContext _context;
 

@@ -25,5 +25,30 @@ namespace Sell_Online.Models
         public PostStates PostStates { get; set; }
         public ICollection<PostImages> PostImages { get; set; }
         public ICollection<PostViews> PostViews { get; set; }
+
+        public object GetPostBasicInfo()
+        {
+            return new
+            {
+                PostID,
+                PostStatesStateID,
+                PostCategoryID,
+                PostCategory,
+                PostViews,
+                UserID,
+                Content,
+                CreationDate,
+                EditDate,
+                IsEdited,
+                SoldDate,
+                Title,
+                User = new
+                {
+                    User?.Email,
+                    User.DisplayName,
+                    UserID
+                }
+            };
+        }
     }
 }

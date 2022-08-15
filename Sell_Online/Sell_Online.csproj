@@ -22,7 +22,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Diagrams\" />
     <Folder Include="Files\Imgs\" />
   </ItemGroup>
 

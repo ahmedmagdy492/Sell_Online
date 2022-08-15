@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Sell_Online.Filters;
+using Sell_Online.IServices;
 using Sell_Online.Services;
 using System;
 using System.Collections.Generic;
@@ -15,9 +16,9 @@ namespace Sell_Online.Controllers
     [ExecptionCatcherFilter]
     public class NotificationController : ControllerBase
     {
-        private readonly NotificationService _notificationService;
+        private readonly INotificationService _notificationService;
 
-        public NotificationController(NotificationService notificationService)
+        public NotificationController(INotificationService notificationService)
         {
             _notificationService = notificationService;
         }

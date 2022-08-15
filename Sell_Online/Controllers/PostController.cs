@@ -4,13 +4,12 @@ using Microsoft.Extensions.Configuration;
 using Sell_Online.DTO;
 using Sell_Online.Filters;
 using Sell_Online.Helpers;
+using Sell_Online.IServices;
 using Sell_Online.Mappers;
 using Sell_Online.Models;
 using Sell_Online.Services;
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace Sell_Online.Controllers
@@ -20,17 +19,19 @@ namespace Sell_Online.Controllers
     [ExecptionCatcherFilter]
     public class PostController : ControllerBase
     {
-        private readonly PostService _postService;
+        private readonly IPostService _postService;
         private readonly IConfiguration _configuration;
-        private readonly NotificationService _notificationService;
-        private readonly ImagesServices _imagesServices;
+        private readonly INotificationService _notificationService;
+        private readonly IImageService _imagesServices;
+        private readonly IViewsService _viewsService;
 
-        public PostController(PostService postService, IConfiguration configuration, NotificationService notificationService, ImagesServices imagesServices)
+        public PostController(IPostService postService, IConfiguration configuration, INotificationService notificationService, IImageService imagesServices, IViewsService viewsService)
         {
             _postService = postService;
             _configuration = configuration;
             _notificationService = notificationService;
             _imagesServices = imagesServices;
+            _viewsService = viewsService;
         }
 
         [Authorize]
@@ -60,26 +61,7 @@ namespace Sell_Online.Controllers
 
             var posts = _postService.GetPostsBy(p => p.PostStatesStateID == (short)PostStateEnum.Open
             &&
-            (p.Title.Contains(query) || p.Content.Contains(query)), "User,PostCategory,PostViews", pageNo, pageSize).Select(p => new {
-                p.PostID,
-                p.PostStatesStateID,
-                p.PostCategoryID,
-                p.PostCategory,
-                p.PostViews,
-                p.UserID,
-                p.Content,
-                p.CreationDate,
-                p.EditDate,
-                p.IsEdited,
-                p.SoldDate,
-                p.Title,
-                User = new
-                {
-                    p.User?.Email,
-                    p.User.DisplayName,
-                    p.UserID
-                }
-            });
+            (p.Title.Contains(query) || p.Content.Contains(query)), "User,PostCategory,PostViews", pageNo, pageSize).Select(p => p.GetPostBasicInfo());
 
             return Ok(new { Message = "Success", Data = posts });
         }
@@ -88,26 +70,7 @@ namespace Sell_Online.Controllers
         [HttpGet("Trending")]
         public IActionResult GetTrendingPosts(int pageNo = 1, int pageSize = 10)
         {
-            var trendingPosts = _postService.GetPostsBy(i => i.PostStatesStateID == (short)PostStateEnum.Open, "User,PostCategory,PostViews", pageNo, pageSize).Select(p => new { 
-                p.PostID, 
-                p.PostStatesStateID,
-                p.PostCategoryID,
-                p.PostCategory,
-                p.PostViews,
-                p.UserID,
-                p.Content,
-                p.CreationDate,
-                p.EditDate,
-                p.IsEdited,
-                p.SoldDate,
-                p.Title,
-                User = new 
-                {
-                    p.User?.Email,
-                    p.User.DisplayName,
-                    p.UserID
-                }
-            });
+            var trendingPosts = _postService.GetPostsBy(i => i.PostStatesStateID == (short)PostStateEnum.Open, "User,PostCategory,PostViews", pageNo, pageSize).Select(p => p.GetPostBasicInfo());
 
             return Ok(new { Message = "Success", Data = trendingPosts });
         }
@@ -117,26 +80,7 @@ namespace Sell_Online.Controllers
         public IActionResult GetMyPosts(int pageNo = 1, int pageSize = 10)
         {
             var userId = User.Claims.ToList()[0].Value;
-            var posts = _postService.GetPostsBy(i => i.UserID == userId, "User,PostCategory,PostViews", pageNo, pageSize).Select(p => new {
-                p.PostID,
-                p.PostStatesStateID,
-                p.PostCategoryID,
-                p.PostCategory,
-                p.PostViews,
-                p.UserID,
-                p.Content,
-                p.CreationDate,
-                p.EditDate,
-                p.IsEdited,
-                p.SoldDate,
-                p.Title,
-                User = new
-                {
-                    p.User?.Email,
-                    p.User.DisplayName,
-                    p.UserID
-                }
-            });
+            var posts = _postService.GetPostsBy(i => i.UserID == userId, "User,PostCategory,PostViews", pageNo, pageSize).Select(p => p.GetPostBasicInfo());
 
             return Ok(new { Message = "Success", Data = posts });
         }
@@ -159,6 +103,9 @@ namespace Sell_Online.Controllers
                 return Forbid();
 
             var deleteResult = await _postService.DeletePost(post);
+            if (!deleteResult)
+                return BadRequest(new { Message = "Post is not deleted due to a problem" });
+
             return Ok(new { Message = "Post has been deleted Successfully" });
         }
 
@@ -249,17 +196,17 @@ namespace Sell_Online.Controllers
             if (post == null)
                 return NotFound(new { Message = "Invalid Post ID or Not Found" });
 
-            var imagesOfPost = _postService.GetImagesOfPost(model.PostID);
+            var imagesOfPost = _imagesServices.GetImagesOfPost(model.PostID);
             if (imagesOfPost.Count == 5)
                 return BadRequest(new { Message = "You can only upload 5 images at most per post" });
 
             Base64Converter base64Converter = new Base64Converter();
             var imageBytes = base64Converter.ConvertFromBase64(model.Base64);
-            string fullPath = System.IO.Path.Combine(_configuration["AppSettings:ImagePath"], $"{Guid.NewGuid()}.{model.ImageType}");
 
-            System.IO.File.WriteAllBytes(fullPath, imageBytes);
+            var fileSaver = new FileSaver(_configuration);
+            fileSaver.SaveFile(imageBytes, model.ImageType);
 
-            var uploadResult = await _postService.AddImages(post, PostMapper.MapPostImage(model));
+            var uploadResult = await _imagesServices.AddImages(post, PostMapper.MapPostImage(model));
 
             return Ok(new { Message = "Image has been uploaded successfully" });
         }
@@ -271,7 +218,7 @@ namespace Sell_Online.Controllers
             if (string.IsNullOrWhiteSpace(imageId))
                 return BadRequest(new { Message = "Invalid Image ID" });
 
-            var postImage = _postService.GetImageByID(imageId, "Post");
+            var postImage = _imagesServices.GetImageByID(imageId, "Post");
             if (postImage == null)
                 return NotFound(new { Message = "Invalid Image ID or Not Found" });
 
@@ -280,7 +227,7 @@ namespace Sell_Online.Controllers
             if (postImage.Post.UserID != userId)
                 return Forbid("You are not allowed to remove this image");
 
-            var postImageResult = await _postService.RemoveImageOfPost(postImage);
+            var postImageResult = await _imagesServices.RemoveImageOfPost(postImage);
             if (!postImageResult)
                 return BadRequest(new { Message = "Image is not removed due to a problem" });
 
@@ -304,7 +251,7 @@ namespace Sell_Online.Controllers
             if (userId == post.UserID)
                 return Ok(new { Message = "No View was added" });
 
-            var hasViewedPost = _postService.HasUserViewedPost(userId, postId);
+            var hasViewedPost = _viewsService.HasUserViewedPost(userId, postId);
             if (hasViewedPost != 0)
                 return Ok(new { Message = "No view was added" });
 
@@ -315,7 +262,7 @@ namespace Sell_Online.Controllers
                 UserID = post.UserID
             }));
 
-            var addView = await _postService.ViewPost(post, userId);
+            var addView = await _viewsService.ViewPost(post, userId);
             return Ok(new { Message = "View is Added", Views = hasViewedPost+1 });
         }
 
@@ -326,7 +273,7 @@ namespace Sell_Online.Controllers
             if (string.IsNullOrWhiteSpace(postId))
                 return BadRequest(new { Message = "Invalid Post ID" });
 
-            var postImages = _imagesServices.GetImagesByPostID(postId);
+            var postImages = _imagesServices.GetImagesOfPost(postId);
             return Ok(new { Message = "Success", Data = postImages });
         }
     }

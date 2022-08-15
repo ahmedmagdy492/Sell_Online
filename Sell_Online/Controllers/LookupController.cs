@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Sell_Online.Filters;
-using Sell_Online.Services;
+using Sell_Online.IServices;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,9 +15,9 @@ namespace Sell_Online.Controllers
     [ExecptionCatcherFilter]
     public class LookupController : ControllerBase
     {
-        private readonly CategoryService _categoryService;
+        private readonly ICategoryService _categoryService;
 
-        public LookupController(CategoryService categoryService)
+        public LookupController(ICategoryService categoryService)
         {
             _categoryService = categoryService;
         }

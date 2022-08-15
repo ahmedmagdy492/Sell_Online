@@ -21,13 +21,13 @@ namespace Sell_Online.Controllers
     {
         private readonly IAuthService _authService;
         private readonly IUserService _userService;
-        private readonly Sha256Hasher _sha256Hasher;
+        private readonly IHashingService _sha256Hasher;
         private readonly IConfiguration _configuration;
 
         public AuthController(
             IAuthService authService,
             IUserService userService,
-            Sha256Hasher sha256Hasher,
+            IHashingService sha256Hasher,
             IConfiguration configuration
             )
         {
