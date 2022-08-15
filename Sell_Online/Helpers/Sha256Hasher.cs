@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Sell_Online.Helpers
 {
-    public class Sha256Hasher
+    public class Sha256Hasher : IHashingService
     {
         private SHA256 _sHA256;
         

@@ -13,6 +13,7 @@ using Microsoft.OpenApi.Models;
 using Sell_Online.Data;
 using Sell_Online.Filters;
 using Sell_Online.Helpers;
+using Sell_Online.IServices;
 using Sell_Online.Services;
 using System;
 using System.Collections.Generic;
@@ -37,9 +38,9 @@ namespace Sell_Online
         public void ConfigureServices(IServiceCollection services)
         {
             #region Application Service Registeration
-            services.AddTransient<AuthService>();
-            services.AddTransient<UserService>();
-            services.AddTransient<Sha256Hasher>();
+            services.AddTransient<IAuthService, AuthService>();
+            services.AddTransient<IUserService, UserService>();
+            services.AddTransient<IHashingService, Sha256Hasher>();
             services.AddTransient<PostService>();
             services.AddTransient<CategoryService>();
             services.AddTransient<NotificationService>();

@@ -66,7 +66,7 @@ namespace Sell_Online.Services
                     });
                 }
 
-                if(i.User != null)
+                if (i.User != null)
                 {
                     i.User.Posts = null;
                     i.User.Notifications = null;
@@ -74,7 +74,7 @@ namespace Sell_Online.Services
                     i.User.Chats = null;
                 }
 
-                if(i.PostImages != null)
+                if (i.PostImages != null)
                 {
                     i.PostImages.ToList().ForEach(p =>
                     {
@@ -82,7 +82,7 @@ namespace Sell_Online.Services
                     });
                 }
 
-                if(i.PostCategory != null)
+                if (i.PostCategory != null)
                 {
                     i.PostCategory.Posts = null;
                 }

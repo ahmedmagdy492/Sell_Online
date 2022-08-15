@@ -1,11 +1,10 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Hosting;
 using Sell_Online.DTO;
 using Sell_Online.Filters;
 using Sell_Online.Helpers;
+using Sell_Online.IServices;
 using Sell_Online.Services;
 using System;
 using System.Collections.Generic;
@@ -20,22 +19,22 @@ namespace Sell_Online.Controllers
     [ExecptionCatcherFilter]
     public class AuthController : ControllerBase
     {
-        private readonly AuthService _authService;
+        private readonly IAuthService _authService;
+        private readonly IUserService _userService;
         private readonly Sha256Hasher _sha256Hasher;
         private readonly IConfiguration _configuration;
-        private readonly IHostEnvironment _hostEnvironment;
 
         public AuthController(
-            AuthService authService,
+            IAuthService authService,
+            IUserService userService,
             Sha256Hasher sha256Hasher,
-            IConfiguration configuration,
-            IHostEnvironment hostEnvironment
+            IConfiguration configuration
             )
         {
             _authService = authService;
+            _userService = userService;
             _sha256Hasher = sha256Hasher;
             _configuration = configuration;
-            _hostEnvironment = hostEnvironment;
         }
 
         [Authorize]
@@ -53,21 +52,21 @@ namespace Sell_Online.Controllers
 
             var hashedPassword = _sha256Hasher.Hash(loginDTO.Password);
 
-            var user = _authService.GetUserBy(u => u.Email == loginDTO.Email && u.Password == hashedPassword);
+            var isAuthenticated = _authService.Authenticate(loginDTO.Email, hashedPassword);
 
-            if (user == null || user.FirstOrDefault() == null)
+            if (!isAuthenticated)
                 return Unauthorized();
 
-            var userObject = user.FirstOrDefault();
+            var user = _userService.GetUserBy(u => u.Email == loginDTO.Email).FirstOrDefault();
 
             JwtGenerator jwtGenerator = new JwtGenerator(_configuration);
-            string token = jwtGenerator.GenerateToken(userObject);
+            string token = jwtGenerator.GenerateToken(user);
 
             return Ok(new
             {
-                Message = userObject.IsVerified == false ? "Please Verify your Email" : "Logged In",
+                Message = user.IsVerified == false ? "Please Verify your Email" : "Logged In",
                 Token = token,
-                user.FirstOrDefault().UserID
+                user.UserID
             });
         }
 
@@ -77,42 +76,28 @@ namespace Sell_Online.Controllers
             if (!ModelState.IsValid)
                 return BadRequest(ValidationHelper.ValidateInput(ModelState.Values));
 
-            var user = _authService.GetUserBy(u => u.Email == registerUserDTO.Email);
+            var user = _userService.GetUserBy(u => u.Email == registerUserDTO.Email);
 
             if(user.FirstOrDefault() != null)
-                return BadRequest(new 
-                {
-                    ValidationErrors = new List<object>
-                    {
-                        new
-                        {
-                            Message = "Email is Already Taken"
-                        }
-                    }
+                return BadRequest(new { ValidationErrors = new List<object>{
+                    new {Message = "Email is Already Taken" }}
                 });
 
             registerUserDTO.Password = _sha256Hasher.Hash(registerUserDTO.Password);
 
-            var created = await _authService.CreateUser(Mappers.UserMapper.MapCreateUser(registerUserDTO));
+            var created = await _userService.CreateUser(Mappers.UserMapper.MapCreateUser(registerUserDTO));
 
             if (!created)
-                return BadRequest(new
-                {
-                    Message = "User is not Created due to a problem"
-                });
+                return BadRequest(new { Message = "User is not Created due to a problem" });
 
-            // TODO: save image on disk
-
+            // converting from the image from base64 to bytes
             var imageBytes = new Base64Converter().ConvertFromBase64(registerUserDTO.ProfileiImage);
 
-            string filePath = System.IO.Path.Combine(_configuration["AppSettings:ImagePath"], $"{Guid.NewGuid()}.{registerUserDTO.ImageType}");
+            // saving image on disk
+            var fileSaver = new FileSaver(_configuration);
+            fileSaver.SaveFile(imageBytes, registerUserDTO.ImageType);
 
-            System.IO.File.WriteAllBytes(filePath, imageBytes);
-
-            return Created("", new
-            {
-                Message = "User has been Created Successfully"
-            });
+            return Created("", new { Message = "User has been Created Successfully" });
         }
 
         [HttpPost("ChangePassword")]
@@ -124,40 +109,21 @@ namespace Sell_Online.Controllers
 
             string userId =  User.Claims.ToList()[0].Value;
 
-            var user = _authService.GetUserBy(u => u.UserID == userId).FirstOrDefault();
+            var user = _userService.GetUserBy(u => u.UserID == userId).FirstOrDefault();
             if(user == null)
-                return NotFound(new
-                {
-                    Message = "User id is not Valid or not Found"
-                });
+                return NotFound(new { Message = "User id is not Valid or not Found" });
 
             var hashedPassword = _sha256Hasher.Hash(changePasswordDTO.CurrentPassword);
 
             if (user.Password != hashedPassword)
-                return BadRequest(new
-                {
-                    Message = "Current Password is incorrect",
-                    ValidationErrors = new List<object>
-                    {
-                        new
-                        {
-                            Message = "Current Password is incorrect"
-                        }
-                    }
-                });
+                return BadRequest(new { Message = "Current Password is incorrect", ValidationErrors = new List<object>{ new { Message = "Current Password is incorrect" } }});
 
-            var changePassword = await _authService.ChangePassword(user, _sha256Hasher.Hash(changePasswordDTO.NewPassword));
+            var changePassword = await _userService.ChangePassword(user, _sha256Hasher.Hash(changePasswordDTO.NewPassword));
 
             if (!changePassword)
-                return BadRequest(new
-                {
-                    Message = "Password has not changed due to a problem"
-                });
+                return BadRequest(new { Message = "Password has not changed due to a problem" });
 
-            return Ok(new
-            {
-                Message = "Password has been changed successfully"
-            });
+            return Ok( new { Message = "Password has been changed successfully" });
         }
 
     }
