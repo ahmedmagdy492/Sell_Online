@@ -9,6 +9,19 @@ namespace Sell_Online.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
+                name: "PostCategories",
+                columns: table => new
+                {
+                    ID = table.Column<long>(nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    Name = table.Column<string>(nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_PostCategories", x => x.ID);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "PostStates",
                 columns: table => new
                 {
@@ -28,6 +41,7 @@ namespace Sell_Online.Migrations
                     UserID = table.Column<string>(nullable: false),
                     DisplayName = table.Column<string>(nullable: true),
                     ProfileImageURL = table.Column<string>(nullable: true),
+                    ImageExtension = table.Column<string>(nullable: true),
                     Email = table.Column<string>(nullable: true),
                     Password = table.Column<string>(nullable: true),
                     IsVerified = table.Column<bool>(nullable: true, defaultValue: false),
@@ -113,17 +127,23 @@ namespace Sell_Online.Migrations
                     PostID = table.Column<string>(nullable: false),
                     Title = table.Column<string>(nullable: true),
                     Content = table.Column<string>(nullable: true),
-                    CreationDate = table.Column<DateTime>(nullable: true, defaultValue: new DateTime(2022, 6, 30, 1, 55, 44, 708, DateTimeKind.Local).AddTicks(4744)),
+                    CreationDate = table.Column<DateTime>(nullable: true, defaultValue: new DateTime(2022, 8, 16, 1, 30, 16, 151, DateTimeKind.Local).AddTicks(1711)),
                     IsEdited = table.Column<bool>(nullable: true, defaultValue: false),
-                    EditDate = table.Column<DateTime>(nullable: true, defaultValue: new DateTime(2022, 6, 30, 1, 55, 44, 709, DateTimeKind.Local).AddTicks(2986)),
-                    StateID = table.Column<short>(nullable: true),
-                    SoldDate = table.Column<DateTime>(nullable: true, defaultValue: new DateTime(2022, 6, 30, 1, 55, 44, 709, DateTimeKind.Local).AddTicks(3138)),
+                    EditDate = table.Column<DateTime>(nullable: true, defaultValue: new DateTime(2022, 8, 16, 1, 30, 16, 151, DateTimeKind.Local).AddTicks(8333)),
+                    PostStatesStateID = table.Column<short>(nullable: true),
+                    SoldDate = table.Column<DateTime>(nullable: true, defaultValue: new DateTime(2022, 8, 16, 1, 30, 16, 151, DateTimeKind.Local).AddTicks(8439)),
                     UserID = table.Column<string>(nullable: true),
-                    PostStatesStateID = table.Column<short>(nullable: true)
+                    PostCategoryID = table.Column<long>(nullable: true)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Posts", x => x.PostID);
+                    table.ForeignKey(
+                        name: "FK_Posts_PostCategories_PostCategoryID",
+                        column: x => x.PostCategoryID,
+                        principalTable: "PostCategories",
+                        principalColumn: "ID",
+                        onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
                         name: "FK_Posts_PostStates_PostStatesStateID",
                         column: x => x.PostStatesStateID,
@@ -175,34 +195,31 @@ namespace Sell_Online.Migrations
                         column: x => x.PostID,
                         principalTable: "Posts",
                         principalColumn: "PostID",
-                        onDelete: ReferentialAction.Restrict);
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
                 name: "PostViews",
                 columns: table => new
                 {
-                    PostViewID = table.Column<int>(nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    ViewerID = table.Column<string>(nullable: true),
-                    UserID = table.Column<string>(nullable: true),
-                    PostID = table.Column<string>(nullable: true)
+                    PostID = table.Column<string>(nullable: false),
+                    ViewerID = table.Column<string>(nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_PostViews", x => x.PostViewID);
+                    table.PrimaryKey("PK_PostViews", x => new { x.PostID, x.ViewerID });
                     table.ForeignKey(
                         name: "FK_PostViews_Posts_PostID",
                         column: x => x.PostID,
                         principalTable: "Posts",
                         principalColumn: "PostID",
-                        onDelete: ReferentialAction.Restrict);
+                        onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_PostViews_Users_UserID",
-                        column: x => x.UserID,
+                        name: "FK_PostViews_Users_ViewerID",
+                        column: x => x.ViewerID,
                         principalTable: "Users",
                         principalColumn: "UserID",
-                        onDelete: ReferentialAction.Restrict);
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateIndex(
@@ -236,6 +253,11 @@ namespace Sell_Online.Migrations
                 column: "PostID");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Posts_PostCategoryID",
+                table: "Posts",
+                column: "PostCategoryID");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Posts_PostStatesStateID",
                 table: "Posts",
                 column: "PostStatesStateID");
@@ -246,14 +268,9 @@ namespace Sell_Online.Migrations
                 column: "UserID");
 
             migrationBuilder.CreateIndex(
-                name: "IX_PostViews_PostID",
+                name: "IX_PostViews_ViewerID",
                 table: "PostViews",
-                column: "PostID");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_PostViews_UserID",
-                table: "PostViews",
-                column: "UserID");
+                column: "ViewerID");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
@@ -278,6 +295,9 @@ namespace Sell_Online.Migrations
 
             migrationBuilder.DropTable(
                 name: "Posts");
+
+            migrationBuilder.DropTable(
+                name: "PostCategories");
 
             migrationBuilder.DropTable(
                 name: "PostStates");

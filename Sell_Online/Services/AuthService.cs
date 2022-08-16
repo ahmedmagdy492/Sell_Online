@@ -22,7 +22,7 @@ namespace Sell_Online.Services
 
         public bool Authenticate(string username, string password)
         {
-            var user = _userService.GetUserBy(u => u.Email == username && u.Password == password);
+            var user = _userService.GetUserBy(u => u.Email == username && u.Password == password).FirstOrDefault();
             return user != null;
         }
     }

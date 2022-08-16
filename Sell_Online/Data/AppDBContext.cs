@@ -33,6 +33,7 @@ namespace Sell_Online.Data
             modelBuilder.ApplyConfiguration(new UserEntityConfiguration());
             modelBuilder.ApplyConfiguration(new PostEntityConfiguration());
             modelBuilder.ApplyConfiguration(new ChatEntityConfiguration());
+            modelBuilder.ApplyConfiguration(new PostViewEntityConfiguration());
         }
     }
 }

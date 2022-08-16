@@ -242,7 +242,7 @@ namespace Sell_Online.Controllers
             if (string.IsNullOrWhiteSpace(postId))
                 return BadRequest(new { Message = "Invalid Post ID" });
 
-            var post = _postService.GetPostsBy(i => i.PostID == postId, "PostViews", 1, 10).FirstOrDefault();
+            var post = _postService.GetPostsBy(i => i.PostID == postId, "", 1, 10).FirstOrDefault();
             if (post == null)
                 return NotFound(new { Message = "Invalid post ID or Not Found" });
 
@@ -262,8 +262,8 @@ namespace Sell_Online.Controllers
                 UserID = post.UserID
             }));
 
-            var addView = await _viewsService.ViewPost(post, userId);
-            return Ok(new { Message = "View is Added", Views = hasViewedPost+1 });
+            var addView = await _viewsService.ViewPost(post.PostID, userId);
+            return Ok(new { Message = "View is Added", isAdded = addView });
         }
 
         [Authorize]

@@ -31,10 +31,6 @@ namespace Sell_Online.EntityConfig
                 .WithOne(i => i.Post)
                 .OnDelete(DeleteBehavior.Cascade);
 
-            builder.HasMany(i => i.PostViews)
-                .WithOne(i => i.Post)
-                .OnDelete(DeleteBehavior.Cascade);
-
             builder.HasOne(i => i.PostCategory)
                 .WithMany(i => i.Posts);
         }

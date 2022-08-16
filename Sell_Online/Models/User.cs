@@ -23,6 +23,7 @@ namespace Sell_Online.Models
         public ICollection<Post> Posts { get; set; }
         public ICollection<PhoneNumbers> PhoneNumbers { get; set; }
         public ICollection<Chat> Chats { get; set; }
+        public ICollection<PostViews> MyViews { get; set; }
 
         public object GetUserBasicInfo()
         {

@@ -9,8 +9,6 @@ namespace Sell_Online.Models
 {
     public class PostViews
     {
-        [Key]
-        public int PostViewID { get; set; }
         public string PostID { get; set; }
         public string ViewerID { get; set; }
 

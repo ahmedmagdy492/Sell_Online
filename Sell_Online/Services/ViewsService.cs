@@ -24,27 +24,11 @@ namespace Sell_Online.Services
             return _context.PostViews.Where(i => i.ViewerID == userId && i.PostID == postId).Count();
         }
 
-        public async Task<bool> ViewPost(Post post, string viewerId)
+        public async Task<bool> ViewPost(string postId, string viewerId)
         {
-            if (post.PostViews != null)
-            {
-                post.PostViews.Add(new PostViews
-                {
-                    PostID = post.PostID,
-                    ViewerID = viewerId,
-                });
-            }
-            else
-            {
-                post.PostViews = new List<PostViews>();
-                post.PostViews.Add(new PostViews
-                {
-                    PostID = post.PostID,
-                    ViewerID = viewerId,
-                });
-            }
-
-            return await _context.SaveChangesAsync() > 0;
+            var view = new PostViews { PostID = postId, ViewerID = viewerId };
+            _context.Entry(view).State = EntityState.Added;
+            return (await _context.SaveChangesAsync()) > 0;
         }
     }
 }

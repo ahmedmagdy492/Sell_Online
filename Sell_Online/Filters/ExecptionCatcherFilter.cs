@@ -1,5 +1,7 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
+using Microsoft.Extensions.Logging;
 using Sell_Online.DTO;
 using System;
 using System.Collections.Generic;
@@ -16,7 +18,7 @@ namespace Sell_Online.Filters
             var result = new JsonResult(new GeneralResponse
             {
                 ErrorCode = Guid.NewGuid().ToString(),
-                Message = context.Exception.Message
+                Message = context.Exception.Message,
             });
 
             // logging

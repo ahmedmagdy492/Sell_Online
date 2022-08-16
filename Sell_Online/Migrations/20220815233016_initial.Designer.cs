@@ -10,8 +10,8 @@ using Sell_Online.Data;
 namespace Sell_Online.Migrations
 {
     [DbContext(typeof(AppDBContext))]
-    [Migration("20220703112920_addedPostIDToPostViewsTbl")]
-    partial class addedPostIDToPostViewsTbl
+    [Migration("20220815233016_initial")]
+    partial class initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -121,12 +121,12 @@ namespace Sell_Online.Migrations
                     b.Property<DateTime?>("CreationDate")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("timestamp without time zone")
-                        .HasDefaultValue(new DateTime(2022, 7, 3, 13, 29, 20, 306, DateTimeKind.Local).AddTicks(5742));
+                        .HasDefaultValue(new DateTime(2022, 8, 16, 1, 30, 16, 151, DateTimeKind.Local).AddTicks(1711));
 
                     b.Property<DateTime?>("EditDate")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("timestamp without time zone")
-                        .HasDefaultValue(new DateTime(2022, 7, 3, 13, 29, 20, 307, DateTimeKind.Local).AddTicks(2021));
+                        .HasDefaultValue(new DateTime(2022, 8, 16, 1, 30, 16, 151, DateTimeKind.Local).AddTicks(8333));
 
                     b.Property<bool?>("IsEdited")
                         .ValueGeneratedOnAdd()
@@ -142,7 +142,7 @@ namespace Sell_Online.Migrations
                     b.Property<DateTime?>("SoldDate")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("timestamp without time zone")
-                        .HasDefaultValue(new DateTime(2022, 7, 3, 13, 29, 20, 307, DateTimeKind.Local).AddTicks(2131));
+                        .HasDefaultValue(new DateTime(2022, 8, 16, 1, 30, 16, 151, DateTimeKind.Local).AddTicks(8439));
 
                     b.Property<string>("Title")
                         .HasColumnType("text");
@@ -211,25 +211,15 @@ namespace Sell_Online.Migrations
 
             modelBuilder.Entity("Sell_Online.Models.PostViews", b =>
                 {
-                    b.Property<int>("PostViewID")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
-
                     b.Property<string>("PostID")
-                        .HasColumnType("text");
-
-                    b.Property<string>("UserID")
                         .HasColumnType("text");
 
                     b.Property<string>("ViewerID")
                         .HasColumnType("text");
 
-                    b.HasKey("PostViewID");
+                    b.HasKey("PostID", "ViewerID");
 
-                    b.HasIndex("PostID");
-
-                    b.HasIndex("UserID");
+                    b.HasIndex("ViewerID");
 
                     b.ToTable("PostViews");
                 });
@@ -324,18 +314,23 @@ namespace Sell_Online.Migrations
                 {
                     b.HasOne("Sell_Online.Models.Post", "Post")
                         .WithMany("PostImages")
-                        .HasForeignKey("PostID");
+                        .HasForeignKey("PostID")
+                        .OnDelete(DeleteBehavior.Cascade);
                 });
 
             modelBuilder.Entity("Sell_Online.Models.PostViews", b =>
                 {
                     b.HasOne("Sell_Online.Models.Post", "Post")
                         .WithMany("PostViews")
-                        .HasForeignKey("PostID");
+                        .HasForeignKey("PostID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.HasOne("Sell_Online.Models.User", "User")
-                        .WithMany()
-                        .HasForeignKey("UserID");
+                        .WithMany("MyViews")
+                        .HasForeignKey("ViewerID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 #pragma warning restore 612, 618
         }
