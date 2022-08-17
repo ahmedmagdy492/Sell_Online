@@ -15,16 +15,16 @@ namespace Sell_Online.Data
         {
         }
 
-        public DbSet<User> Users { get; set; }
-        public DbSet<PhoneNumbers> PhoneNumbers { get; set; }
-        public DbSet<Post> Posts { get; set; }
-        public DbSet<PostViews> PostViews { get; set; }
-        public DbSet<PostImages> PostImages { get; set; }
-        public DbSet<PostStates> PostStates { get; set; }
-        public DbSet<Notification> Notifications { get; set; }
-        public DbSet<Message> Messages { get; set; }
-        public DbSet<Chat> Chats { get; set; }
-        public DbSet<PostCategory> PostCategories { get; set; }
+        public virtual DbSet<User> Users { get; set; }
+        public virtual DbSet<PhoneNumbers> PhoneNumbers { get; set; }
+        public virtual DbSet<Post> Posts { get; set; }
+        public virtual DbSet<PostViews> PostViews { get; set; }
+        public virtual DbSet<PostImages> PostImages { get; set; }
+        public virtual DbSet<PostStates> PostStates { get; set; }
+        public virtual DbSet<Notification> Notifications { get; set; }
+        public virtual DbSet<Message> Messages { get; set; }
+        public virtual DbSet<Chat> Chats { get; set; }
+        public virtual DbSet<PostCategory> PostCategories { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

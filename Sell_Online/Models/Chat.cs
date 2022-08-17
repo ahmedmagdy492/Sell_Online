@@ -12,8 +12,20 @@ namespace Sell_Online.Models
         public string SenderID { get; set; }
         public string ReceiverID { get; set; }
 
-        public User Sender { get; set; }
-        public User Reciever { get; set; }
-        public ICollection<Message> Messages { get; set; }
+        public virtual User Sender { get; set; }
+        public virtual User Reciever { get; set; }
+        public virtual ICollection<Message> Messages { get; set; }
+
+        public object GetChatOutModel()
+        {
+            return new
+            {
+                ChatID,
+                SenderID,
+                ReceiverID,
+                SenderName = Sender?.DisplayName,
+                ReceiverName = Reciever?.DisplayName
+            };
+        }
     }
 }

@@ -15,6 +15,6 @@ namespace Sell_Online.Models
         public string ImageURL { get; set; }
         public string PostID { get; set; }
 
-        public Post Post { get; set; }
+        public virtual Post Post { get; set; }
     }
 }

@@ -5,21 +5,13 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Sell_Online.Models
+namespace Sell_Online.DTO
 {
-    public class Message
+    public class CreateMessageDTO
     {
-        public Message()
-        {
-            SentDate = DateTime.Now;
-        }
-
-        [Key]
-        public string ID { get; set; }
+        [Required]
         public string Content { get; set; }
         public DateTime? SentDate { get; set; }
         public string ChatID { get; set; }
-        public bool? Seen { get; set; }
-        public virtual Chat Chat { get; set; }
     }
 }

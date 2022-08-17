@@ -12,7 +12,7 @@ namespace Sell_Online.Models
         public string UserUpvotedID { get; set; }
         public string UserUpvoterID { get; set; }
 
-        public User UserUpvoted { get; set; }
-        public User UserUpvoter { get; set; }
+        public virtual User UserUpvoted { get; set; }
+        public virtual User UserUpvoter { get; set; }
     }
 }

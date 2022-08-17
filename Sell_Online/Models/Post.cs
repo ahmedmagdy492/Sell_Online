@@ -19,12 +19,12 @@ namespace Sell_Online.Models
         public string UserID { get; set; }
         public long? PostCategoryID { get; set; }
 
-        public User User { get; set; }
+        public virtual User User { get; set; }
 
-        public PostCategory PostCategory { get; set; }
-        public PostStates PostStates { get; set; }
-        public ICollection<PostImages> PostImages { get; set; }
-        public ICollection<PostViews> PostViews { get; set; }
+        public virtual PostCategory PostCategory { get; set; }
+        public virtual PostStates PostStates { get; set; }
+        public virtual ICollection<PostImages> PostImages { get; set; }
+        public virtual ICollection<PostViews> PostViews { get; set; }
 
         public object GetPostBasicInfo()
         {

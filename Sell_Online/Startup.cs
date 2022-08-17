@@ -46,15 +46,17 @@ namespace Sell_Online
             services.AddTransient<INotificationService, NotificationService>();
             services.AddTransient<IImageService, ImageService>();
             services.AddTransient<IViewsService, ViewsService>();
+            services.AddTransient<IChatService, ChatService>();
+            services.AddTransient<IMessageService, MessageService>();
             #endregion
 
 
             services.AddControllers(options => options.Filters.Add(new ExecptionCatcherFilter()))
                 .AddJsonOptions(config =>
                 {
-                    config.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
+                    config.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.Preserve;
                 });
-                //.AddNewtonSoftJson();
+            //.AddNewtonSoftJson();
 
 
             services.AddAuthentication(options =>
@@ -78,7 +80,9 @@ namespace Sell_Online
 
             services.AddDbContext<AppDBContext>(config =>
             {
-                config.UseNpgsql(Configuration.GetConnectionString("DefaultConnection"));
+                config
+                .UseLazyLoadingProxies(true)
+                .UseNpgsql(Configuration.GetConnectionString("DefaultConnection"));
             });
 
             services.Configure<ApiBehaviorOptions>(options =>

@@ -55,7 +55,7 @@ namespace Sell_Online.Services
                 postsWithInclude = postsWithInclude.Include(include);
             }
 
-            var result = postsWithInclude.OrderByDescending(i => i.CreationDate).Where(condition).Skip((pageNo - 1) * pageSize).Take(pageSize).ToList();
+            var result = posts.OrderByDescending(i => i.CreationDate).Where(condition).Skip((pageNo - 1) * pageSize).Take(pageSize).ToList();
             result.ForEach(i =>
             {
                 if (i.PostViews != null)
