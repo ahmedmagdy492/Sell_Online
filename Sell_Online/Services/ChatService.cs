@@ -21,7 +21,7 @@ namespace Sell_Online.Services
 
         public List<Chat> GetChatsOfUser(string userId)
         {
-            var chats = _context.Chats.Where(c => c.SenderID == userId || c.ReceiverID == userId).ToList();
+            var chats = _context.Chats.Include(c => c.Sender).Include(c => c.Reciever).Where(c => c.SenderID == userId || c.ReceiverID == userId).ToList();
             return chats;
         }
 

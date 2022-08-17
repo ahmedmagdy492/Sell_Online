@@ -13,6 +13,6 @@ namespace Sell_Online.Models
         public long ID { get; set; }
         public string Name { get; set; }
 
-        public virtual ICollection<Post> Posts { get; set; }
+        public ICollection<Post> Posts { get; set; }
     }
 }

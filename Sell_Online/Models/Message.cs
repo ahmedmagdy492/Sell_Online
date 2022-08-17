@@ -20,6 +20,6 @@ namespace Sell_Online.Models
         public DateTime? SentDate { get; set; }
         public string ChatID { get; set; }
         public bool? Seen { get; set; }
-        public virtual Chat Chat { get; set; }
+        public Chat Chat { get; set; }
     }
 }

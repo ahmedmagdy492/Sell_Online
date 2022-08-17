@@ -12,6 +12,6 @@ namespace Sell_Online.Models
         public string PhoneNumber { get; set; }
         public string UserID { get; set; }
 
-        public virtual User User { get; set; }
+        public User User { get; set; }
     }
 }

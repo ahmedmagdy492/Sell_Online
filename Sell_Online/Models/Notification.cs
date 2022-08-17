@@ -21,6 +21,6 @@ namespace Sell_Online.Models
         public string UserID { get; set; }
         public DateTime? NotificationDate { get; set; }
 
-        public virtual User User { get; set; }
+        public User User { get; set; }
     }
 }

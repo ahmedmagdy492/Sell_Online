@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace Sell_Online.Services
 {
@@ -24,6 +25,95 @@ namespace Sell_Online.Services
             post.UserID = userId;
             _context.Posts.Add(post);
             return await _context.SaveChangesAsync() > 0;
+        }
+
+        public List<Post> SearchPosts(string query, int pageNo, int pageSize)
+        {
+            var result = _context.Posts.Include(p => p.User).Include(p => p.PostViews).Include(p => p.PostCategory).Where(p => p.PostStatesStateID == (short)PostStateEnum.Open && (p.Title.Contains(query) || p.Content.Contains(query))).Skip((pageNo - 1) * pageSize).Take(pageSize)
+            .ToList();
+            foreach (var post in result)
+            {
+                post.User.ProfileImageURL = null;
+                post.User.Posts = null;
+
+                foreach (var view in post.PostViews)
+                {
+                    view.Post = null;
+                    view.User = null;
+                    post.PostCategory.Posts = null;
+                }
+            }
+
+            return result;
+        }
+
+        public List<Post> GetTrendingPosts(int pageNo, int pageSize)
+        {
+            var result = _context.Posts.Include(p => p.User).Include(p => p.PostViews).Include(p => p.PostCategory).Where(p => p.PostStatesStateID == (short)PostStateEnum.Open).Skip((pageNo - 1) * pageSize).Take(pageSize)
+                .ToList();
+
+            foreach (var post in result)
+            {
+                post.User.Posts = null;
+                post.PostImages = null;
+
+                foreach (var view in post.PostViews)
+                {
+                    view.Post = null;
+                    view.User = null;
+                    post.PostCategory.Posts = null;
+                }
+            }
+
+            return result;
+        }
+
+        public List<Post> GetPostsByUserID(string userId, int pageNo, int pageSize)
+        {
+            var result = _context.Posts.Include(p => p.User).Include(p => p.PostViews).Include(p => p.PostCategory).Where(p => p.UserID == userId).Skip((pageNo - 1) * pageSize).Take(pageSize)
+                .ToList();
+
+            foreach(var post in result)
+            {
+                post.User.Posts = null;
+
+                foreach(var view in post.PostViews)
+                {
+                    view.Post = null;
+                    view.User = null;
+                    post.PostCategory.Posts = null;
+                }
+            }
+
+            return result;
+        }
+
+        public Post GetPostByIdWithInclude(string postId)
+        {
+            var result = _context.Posts.Include(p => p.User).Include(p => p.PostCategory).Include(p => p.PostImages).Include(p => p.PostViews);
+
+            foreach(var post in result)
+            {
+                post.User.Posts = null;
+                post.PostCategory.Posts = null;
+                foreach(var view in post.PostViews)
+                {
+                    view.Post = null;
+                    view.User = null;
+                }
+
+                foreach (var img in post.PostImages)
+                {
+                    img.Post = null;
+                }
+            }
+
+            return result.FirstOrDefault(p => p.PostID == postId);
+        }
+
+        public Post GetPostById(string postId)
+        {
+            return _context.Posts.FirstOrDefault(p => p.PostID == postId);
         }
 
         /// <summary>

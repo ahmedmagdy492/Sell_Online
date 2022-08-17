@@ -81,7 +81,6 @@ namespace Sell_Online
             services.AddDbContext<AppDBContext>(config =>
             {
                 config
-                .UseLazyLoadingProxies(true)
                 .UseNpgsql(Configuration.GetConnectionString("DefaultConnection"));
             });
 

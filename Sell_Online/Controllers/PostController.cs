@@ -9,6 +9,7 @@ using Sell_Online.Mappers;
 using Sell_Online.Models;
 using Sell_Online.Services;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -41,11 +42,11 @@ namespace Sell_Online.Controllers
             if (string.IsNullOrWhiteSpace(postId))
                 return BadRequest(new { Message = "Invalid Post ID" });
 
-            var posts = _postService.GetPostsBy(p => p.PostID == postId, "User,PostCategory,PostImages,PostViews", 1, 10);
-            if (posts == null)
+            var post = _postService.GetPostByIdWithInclude(postId);
+            if (post == null)
                 return NotFound(new { Message = "Post Not Found" });
 
-            return Ok(new { Message = "Success", Data = posts });
+            return Ok(new { Message = "Success", Data = new List<Post> { post } });
         }
 
         // searching by either content or title
@@ -59,9 +60,7 @@ namespace Sell_Online.Controllers
             if (query.Length <= 2)
                 return BadRequest(new { Message = "Please Provide at least 3 characters in search query" });
 
-            var posts = _postService.GetPostsBy(p => p.PostStatesStateID == (short)PostStateEnum.Open
-            &&
-            (p.Title.Contains(query) || p.Content.Contains(query)), "User,PostCategory,PostViews", pageNo, pageSize).Select(p => p.GetPostBasicInfo());
+            var posts = _postService.SearchPosts(query, pageNo, pageSize);
 
             return Ok(new { Message = "Success", Data = posts });
         }
@@ -70,7 +69,7 @@ namespace Sell_Online.Controllers
         [HttpGet("Trending")]
         public IActionResult GetTrendingPosts(int pageNo = 1, int pageSize = 10)
         {
-            var trendingPosts = _postService.GetPostsBy(i => i.PostStatesStateID == (short)PostStateEnum.Open, "User,PostCategory,PostViews", pageNo, pageSize).Select(p => p.GetPostBasicInfo());
+            var trendingPosts = _postService.GetTrendingPosts(pageNo, pageSize);
 
             return Ok(new { Message = "Success", Data = trendingPosts });
         }
@@ -80,7 +79,7 @@ namespace Sell_Online.Controllers
         public IActionResult GetMyPosts(int pageNo = 1, int pageSize = 10)
         {
             var userId = User.Claims.ToList()[0].Value;
-            var posts = _postService.GetPostsBy(i => i.UserID == userId, "User,PostCategory,PostViews", pageNo, pageSize).Select(p => p.GetPostBasicInfo());
+            var posts = _postService.GetPostsByUserID(userId, pageNo, pageSize);
 
             return Ok(new { Message = "Success", Data = posts });
         }
@@ -92,8 +91,7 @@ namespace Sell_Online.Controllers
             if (string.IsNullOrWhiteSpace(postID))
                 return BadRequest(new { Message = "Invalid Post ID" });
 
-            Post post = _postService.GetPostsBy(p => p.PostID == postID, "", 1, 10)
-                .FirstOrDefault();
+            Post post = _postService.GetPostById(postID);
 
             if (post == null)
                 return NotFound(new { Message = "Invalid Post ID" });
@@ -141,7 +139,7 @@ namespace Sell_Online.Controllers
             if (status != (short)PostStateEnum.Open && status != (short)PostStateEnum.Closed)
                 return BadRequest(new { Message = "Invalid Status ID" });
 
-            var post = _postService.GetPostsBy(i => i.PostID == postId, "", 1, 10).FirstOrDefault();
+            var post = _postService.GetPostById(postId);
 
             if (post == null)
                 return NotFound(new { Message = "Invalid Post ID or Not Found" });
@@ -172,7 +170,7 @@ namespace Sell_Online.Controllers
             if (!ModelState.IsValid)
                 return BadRequest(ValidationHelper.ValidateInput(ModelState.Values));
 
-            var post = _postService.GetPostsBy(i => i.PostID == model.PostID, "", 1, 10).FirstOrDefault();
+            var post = _postService.GetPostById(model.PostID);
 
             if (post == null)
                 return NotFound(new { Message = "Invalid Post ID or Not Found" });
@@ -191,7 +189,7 @@ namespace Sell_Online.Controllers
             if (!ModelState.IsValid)
                 return BadRequest(ValidationHelper.ValidateInput(ModelState.Values));
 
-            var post = _postService.GetPostsBy(i => i.PostID == model.PostID, "", 1, 10).FirstOrDefault();
+            var post = _postService.GetPostById(model.PostID);
 
             if (post == null)
                 return NotFound(new { Message = "Invalid Post ID or Not Found" });
@@ -242,7 +240,7 @@ namespace Sell_Online.Controllers
             if (string.IsNullOrWhiteSpace(postId))
                 return BadRequest(new { Message = "Invalid Post ID" });
 
-            var post = _postService.GetPostsBy(i => i.PostID == postId, "", 1, 10).FirstOrDefault();
+            var post = _postService.GetPostById(postId);
             if (post == null)
                 return NotFound(new { Message = "Invalid post ID or Not Found" });
 
