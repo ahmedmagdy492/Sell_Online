@@ -26,9 +26,6 @@ namespace Sell_Online.EntityConfig
 
             builder.HasMany(i => i.PhoneNumbers)
                 .WithOne(i => i.User);
-
-            builder.HasMany(i => i.Chats)
-                .WithOne(i => i.Sender);
         }
     }
 }

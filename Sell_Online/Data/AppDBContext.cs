@@ -23,7 +23,6 @@ namespace Sell_Online.Data
         public DbSet<PostStates> PostStates { get; set; }
         public DbSet<Notification> Notifications { get; set; }
         public DbSet<Message> Messages { get; set; }
-        public DbSet<Chat> Chats { get; set; }
         public DbSet<PostCategory> PostCategories { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -32,7 +31,6 @@ namespace Sell_Online.Data
 
             modelBuilder.ApplyConfiguration(new UserEntityConfiguration());
             modelBuilder.ApplyConfiguration(new PostEntityConfiguration());
-            modelBuilder.ApplyConfiguration(new ChatEntityConfiguration());
             modelBuilder.ApplyConfiguration(new PostViewEntityConfiguration());
         }
     }

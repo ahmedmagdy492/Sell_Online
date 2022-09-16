@@ -12,5 +12,10 @@ namespace Sell_Online.Helpers
         {
             return Convert.FromBase64String(base64);
         }
+
+        public string ConvertToBase64(byte[] bytes)
+        {
+            return Convert.ToBase64String(bytes);
+        }
     }
 }

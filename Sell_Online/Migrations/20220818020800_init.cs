@@ -4,7 +4,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace Sell_Online.Migrations
 {
-    public partial class initial : Migration
+    public partial class init : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -59,25 +59,24 @@ namespace Sell_Online.Migrations
                 columns: table => new
                 {
                     ChatID = table.Column<string>(nullable: false),
-                    SenderID = table.Column<string>(nullable: true),
-                    ReceiverID = table.Column<string>(nullable: true),
-                    RecieverUserID = table.Column<string>(nullable: true)
+                    SenderID = table.Column<string>(nullable: false),
+                    ReceiverID = table.Column<string>(nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Chats", x => x.ChatID);
                     table.ForeignKey(
-                        name: "FK_Chats_Users_RecieverUserID",
-                        column: x => x.RecieverUserID,
+                        name: "FK_Chats_Users_ReceiverID",
+                        column: x => x.ReceiverID,
                         principalTable: "Users",
                         principalColumn: "UserID",
-                        onDelete: ReferentialAction.Restrict);
+                        onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_Chats_Users_SenderID",
                         column: x => x.SenderID,
                         principalTable: "Users",
                         principalColumn: "UserID",
-                        onDelete: ReferentialAction.Restrict);
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -127,11 +126,11 @@ namespace Sell_Online.Migrations
                     PostID = table.Column<string>(nullable: false),
                     Title = table.Column<string>(nullable: true),
                     Content = table.Column<string>(nullable: true),
-                    CreationDate = table.Column<DateTime>(nullable: true, defaultValue: new DateTime(2022, 8, 16, 1, 30, 16, 151, DateTimeKind.Local).AddTicks(1711)),
+                    CreationDate = table.Column<DateTime>(nullable: true, defaultValue: new DateTime(2022, 8, 18, 4, 8, 0, 339, DateTimeKind.Local).AddTicks(4570)),
                     IsEdited = table.Column<bool>(nullable: true, defaultValue: false),
-                    EditDate = table.Column<DateTime>(nullable: true, defaultValue: new DateTime(2022, 8, 16, 1, 30, 16, 151, DateTimeKind.Local).AddTicks(8333)),
+                    EditDate = table.Column<DateTime>(nullable: true, defaultValue: new DateTime(2022, 8, 18, 4, 8, 0, 340, DateTimeKind.Local).AddTicks(2956)),
                     PostStatesStateID = table.Column<short>(nullable: true),
-                    SoldDate = table.Column<DateTime>(nullable: true, defaultValue: new DateTime(2022, 8, 16, 1, 30, 16, 151, DateTimeKind.Local).AddTicks(8439)),
+                    SoldDate = table.Column<DateTime>(nullable: true, defaultValue: new DateTime(2022, 8, 18, 4, 8, 0, 340, DateTimeKind.Local).AddTicks(3070)),
                     UserID = table.Column<string>(nullable: true),
                     PostCategoryID = table.Column<long>(nullable: true)
                 },
@@ -223,9 +222,9 @@ namespace Sell_Online.Migrations
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_Chats_RecieverUserID",
+                name: "IX_Chats_ReceiverID",
                 table: "Chats",
-                column: "RecieverUserID");
+                column: "ReceiverID");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Chats_SenderID",

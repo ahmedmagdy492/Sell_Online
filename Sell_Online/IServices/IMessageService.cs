@@ -6,9 +6,10 @@ namespace Sell_Online.IServices
 {
     public interface IMessageService
     {
+        object GetChatsOfUser(string userId);
         Task<bool> CreateMessage(Message message);
-        List<Message> GetListOfMessagesOfChat(string chatId);
         Task<bool> MarkAsSeen(Message message);
         Message GetMessageByID(string messageId);
+        object GetListOfMessagesOfUser(string senderId, string receiverId);
     }
 }

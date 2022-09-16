@@ -1,4 +1,5 @@
-﻿using Sell_Online.Data;
+﻿using Microsoft.EntityFrameworkCore;
+using Sell_Online.Data;
 using Sell_Online.IServices;
 using Sell_Online.Models;
 using System;
@@ -18,9 +19,14 @@ namespace Sell_Online.Services
             _context = context;
         }
 
-        public List<Message> GetListOfMessagesOfChat(string chatId)
+        public object GetChatsOfUser(string userId)
         {
-            return _context.Messages.Where(m => m.ChatID == chatId).ToList();
+            return _context.Messages.Include(u => u.Sender).Include(u => u.Receiver).Where(m => m.SenderID == userId || m.ReceiverID == userId).Select(m => new { m.ID, SenderName = m.Sender.DisplayName, RecieverName = m.Receiver.DisplayName, m.SentDate, m.Content, m.Seen }).ToList();
+        }
+
+        public object GetListOfMessagesOfUser(string senderId, string receiverId)
+        {
+            return _context.Messages.Include(u => u.Sender).Include(u => u.Receiver).Where(m => (m.SenderID == senderId && m.ReceiverID == receiverId) || (m.SenderID == receiverId && m.ReceiverID == senderId)).Select(m => new { m.ID, SenderName = m.Sender.DisplayName, RecieverName = m.Receiver.DisplayName, m.SentDate, m.Content, m.Seen }).ToList();
         }
 
         public async Task<bool> CreateMessage(Message message)

@@ -23,15 +23,13 @@ namespace Sell_Online.Controllers
         private readonly IPostService _postService;
         private readonly IConfiguration _configuration;
         private readonly INotificationService _notificationService;
-        private readonly IImageService _imagesServices;
         private readonly IViewsService _viewsService;
 
-        public PostController(IPostService postService, IConfiguration configuration, INotificationService notificationService, IImageService imagesServices, IViewsService viewsService)
+        public PostController(IPostService postService, IConfiguration configuration, INotificationService notificationService, IViewsService viewsService)
         {
             _postService = postService;
             _configuration = configuration;
             _notificationService = notificationService;
-            _imagesServices = imagesServices;
             _viewsService = viewsService;
         }
 
@@ -45,6 +43,22 @@ namespace Sell_Online.Controllers
             var post = _postService.GetPostByIdWithInclude(postId);
             if (post == null)
                 return NotFound(new { Message = "Post Not Found" });
+
+            var postImages = post.PostImages ?? new List<PostImages>();
+            var fileReader = new FileReader(_configuration);
+            var base64Converter = new Base64Converter();
+
+            foreach (var image in postImages)
+            {
+                try
+                {
+                    image.ImageURL = base64Converter.ConvertToBase64(fileReader.ReadFile(image.ImageURL));
+                }
+                catch (Exception)
+                {
+                    image.ImageURL = null;
+                }
+            }
 
             return Ok(new { Message = "Success", Data = new List<Post> { post } });
         }
@@ -113,16 +127,16 @@ namespace Sell_Online.Controllers
         public async Task<IActionResult> CreatePost(CreatePostDTO model)
         {
             if (!ModelState.IsValid)
-                return BadRequest(ValidationHelper.ValidateInput(ModelState.Values));
+                return BadRequest(ValidationHelper.ExtractErrMsgs(ModelState.Values));
 
             var userId = User.Claims.ToList()[0].Value;
 
-            var mapping = PostMapper.MapCreatePost(model);
-            var createPost = await _postService.CreatePost(mapping, userId);
+            var mappedPostObject = PostMapper.MapCreatePost(model);
+            var createPost = await _postService.CreatePost(mappedPostObject, userId);
             if (!createPost)
                 return BadRequest(new { Message = "Post is not created due to a problem" });
 
-            return Created("", new { Message = "Post has been created successfully", PostID = mapping.PostID });
+            return Created("", new { Message = "Post has been created successfully", PostID = mappedPostObject.PostID });
         }
 
 
@@ -144,21 +158,15 @@ namespace Sell_Online.Controllers
             if (post == null)
                 return NotFound(new { Message = "Invalid Post ID or Not Found" });
 
+            if (status == (short)PostStateEnum.Closed)
+            {
+                // update sold date in post
+                post.SoldDate = DateTime.Now;
+            }
+
             var changeStatusResult = await _postService.UpdateStatus(post, status);
             if (!changeStatusResult)
                 return BadRequest(new { Message = "Post status is not updated due to a problem" });
-
-            if (status == (short)PostStateEnum.Closed)
-            {
-                // update sold date in post id
-                post.SoldDate = DateTime.Now;
-                await _postService.UpdatePost(PostMapper.MapUpdatePost(post, new UpdatePostDTO
-                {
-                    CategoryID = post.PostCategoryID,
-                    Content = post.Content,
-                    Title = post.Title,
-                }));
-            }
 
             return Ok(new { Message = "Post status has been updated successfully" });
         }
@@ -168,7 +176,7 @@ namespace Sell_Online.Controllers
         public async Task<IActionResult> UpdatePost(UpdatePostDTO model)
         {
             if (!ModelState.IsValid)
-                return BadRequest(ValidationHelper.ValidateInput(ModelState.Values));
+                return BadRequest(ValidationHelper.ExtractErrMsgs(ModelState.Values));
 
             var post = _postService.GetPostById(model.PostID);
 
@@ -180,56 +188,6 @@ namespace Sell_Online.Controllers
                 return BadRequest(new { Message = "Post is not updated due to a problem" });
 
             return Ok(new { Message = "Post has been updated successfully" });
-        }
-
-        [HttpPost("Images/Upload")]
-        [Authorize]
-        public async Task<IActionResult> UploadImages(UploadImageDTO model)
-        {
-            if (!ModelState.IsValid)
-                return BadRequest(ValidationHelper.ValidateInput(ModelState.Values));
-
-            var post = _postService.GetPostById(model.PostID);
-
-            if (post == null)
-                return NotFound(new { Message = "Invalid Post ID or Not Found" });
-
-            var imagesOfPost = _imagesServices.GetImagesOfPost(model.PostID);
-            if (imagesOfPost.Count == 5)
-                return BadRequest(new { Message = "You can only upload 5 images at most per post" });
-
-            Base64Converter base64Converter = new Base64Converter();
-            var imageBytes = base64Converter.ConvertFromBase64(model.Base64);
-
-            var fileSaver = new FileSaver(_configuration);
-            fileSaver.SaveFile(imageBytes, model.ImageType);
-
-            var uploadResult = await _imagesServices.AddImages(post, PostMapper.MapPostImage(model));
-
-            return Ok(new { Message = "Image has been uploaded successfully" });
-        }
-
-        [HttpDelete("Images/Remove")]
-        [Authorize]
-        public async Task<IActionResult> RemoveImage(string imageId)
-        {
-            if (string.IsNullOrWhiteSpace(imageId))
-                return BadRequest(new { Message = "Invalid Image ID" });
-
-            var postImage = _imagesServices.GetImageByID(imageId, "Post");
-            if (postImage == null)
-                return NotFound(new { Message = "Invalid Image ID or Not Found" });
-
-            var userId = User.Claims.ToList()[0].Value;
-
-            if (postImage.Post.UserID != userId)
-                return Forbid("You are not allowed to remove this image");
-
-            var postImageResult = await _imagesServices.RemoveImageOfPost(postImage);
-            if (!postImageResult)
-                return BadRequest(new { Message = "Image is not removed due to a problem" });
-
-            return Ok(new { Message = "Image has been removed successfully" });
         }
 
 
@@ -262,17 +220,6 @@ namespace Sell_Online.Controllers
 
             var addView = await _viewsService.ViewPost(post.PostID, userId);
             return Ok(new { Message = "View is Added", isAdded = addView });
-        }
-
-        [Authorize]
-        [HttpGet("Images")]
-        public IActionResult GetImagesOfPost(string postId)
-        {
-            if (string.IsNullOrWhiteSpace(postId))
-                return BadRequest(new { Message = "Invalid Post ID" });
-
-            var postImages = _imagesServices.GetImagesOfPost(postId);
-            return Ok(new { Message = "Success", Data = postImages });
         }
     }
 }

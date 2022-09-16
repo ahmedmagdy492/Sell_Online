@@ -17,9 +17,9 @@ namespace Sell_Online.Helpers
             _configuration = configuration;
         }
 
-        public void SaveFile(byte[] fileBytes, string fileType)
+        public void SaveFile(string fileName, byte[] fileBytes, string fileType)
         {
-            string filePath = System.IO.Path.Combine(_configuration["AppSettings:ImagePath"], $"{Guid.NewGuid()}.{fileType}");
+            string filePath = System.IO.Path.Combine(_configuration["AppSettings:ImagePath"], $"{fileName}.{fileType}");
 
             System.IO.File.WriteAllBytes(filePath, fileBytes);
         }

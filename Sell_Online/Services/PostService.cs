@@ -35,12 +35,12 @@ namespace Sell_Online.Services
             {
                 post.User.ProfileImageURL = null;
                 post.User.Posts = null;
+                post.PostCategory.Posts = null;
 
                 foreach (var view in post.PostViews)
                 {
                     view.Post = null;
                     view.User = null;
-                    post.PostCategory.Posts = null;
                 }
             }
 
@@ -56,12 +56,12 @@ namespace Sell_Online.Services
             {
                 post.User.Posts = null;
                 post.PostImages = null;
+                post.PostCategory.Posts = null;
 
                 foreach (var view in post.PostViews)
                 {
                     view.Post = null;
                     view.User = null;
-                    post.PostCategory.Posts = null;
                 }
             }
 
@@ -76,12 +76,13 @@ namespace Sell_Online.Services
             foreach(var post in result)
             {
                 post.User.Posts = null;
+                post.User.MyViews = null;
+                post.PostCategory.Posts = null;
 
-                foreach(var view in post.PostViews)
+                foreach (var view in post.PostViews)
                 {
                     view.Post = null;
                     view.User = null;
-                    post.PostCategory.Posts = null;
                 }
             }
 
@@ -95,7 +96,9 @@ namespace Sell_Online.Services
             foreach(var post in result)
             {
                 post.User.Posts = null;
+                post.User.MyViews = null;
                 post.PostCategory.Posts = null;
+
                 foreach(var view in post.PostViews)
                 {
                     view.Post = null;
@@ -162,7 +165,6 @@ namespace Sell_Online.Services
                     i.User.Posts = null;
                     i.User.Notifications = null;
                     i.User.PhoneNumbers = null;
-                    i.User.Chats = null;
                 }
 
                 if (i.PostImages != null)

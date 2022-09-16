@@ -15,7 +15,8 @@ namespace Sell_Online.Mappers
             return new Message
             {
                 Content = model.Content,
-                ChatID = model.ChatID,
+                SenderID = model.SenderID,
+                ReceiverID = model.RecieverID,
                 Seen = false,
                 ID = Guid.NewGuid().ToString(),
                 SentDate = DateTime.Now

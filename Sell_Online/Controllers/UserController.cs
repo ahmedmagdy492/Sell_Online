@@ -46,7 +46,7 @@ namespace Sell_Online.Controllers
         public async Task<IActionResult> UpdateUser(UpdateUserDTO updateUserDTO)
         {
             if (!ModelState.IsValid)
-                return BadRequest(ValidationHelper.ValidateInput(ModelState.Values));
+                return BadRequest(ValidationHelper.ExtractErrMsgs(ModelState.Values));
 
             string userId = User.Claims.ToList()[0].Value;
             var user = _userService.GetUserBy(u => u.UserID == userId).FirstOrDefault();

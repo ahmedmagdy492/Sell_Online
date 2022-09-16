@@ -46,7 +46,6 @@ namespace Sell_Online
             services.AddTransient<INotificationService, NotificationService>();
             services.AddTransient<IImageService, ImageService>();
             services.AddTransient<IViewsService, ViewsService>();
-            services.AddTransient<IChatService, ChatService>();
             services.AddTransient<IMessageService, MessageService>();
             #endregion
 

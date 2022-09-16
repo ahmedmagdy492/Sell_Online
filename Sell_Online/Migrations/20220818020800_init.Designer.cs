@@ -10,8 +10,8 @@ using Sell_Online.Data;
 namespace Sell_Online.Migrations
 {
     [DbContext(typeof(AppDBContext))]
-    [Migration("20220815233016_initial")]
-    partial class initial
+    [Migration("20220818020800_init")]
+    partial class init
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -27,17 +27,16 @@ namespace Sell_Online.Migrations
                         .HasColumnType("text");
 
                     b.Property<string>("ReceiverID")
-                        .HasColumnType("text");
-
-                    b.Property<string>("RecieverUserID")
+                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<string>("SenderID")
+                        .IsRequired()
                         .HasColumnType("text");
 
                     b.HasKey("ChatID");
 
-                    b.HasIndex("RecieverUserID");
+                    b.HasIndex("ReceiverID");
 
                     b.HasIndex("SenderID");
 
@@ -121,12 +120,12 @@ namespace Sell_Online.Migrations
                     b.Property<DateTime?>("CreationDate")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("timestamp without time zone")
-                        .HasDefaultValue(new DateTime(2022, 8, 16, 1, 30, 16, 151, DateTimeKind.Local).AddTicks(1711));
+                        .HasDefaultValue(new DateTime(2022, 8, 18, 4, 8, 0, 339, DateTimeKind.Local).AddTicks(4570));
 
                     b.Property<DateTime?>("EditDate")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("timestamp without time zone")
-                        .HasDefaultValue(new DateTime(2022, 8, 16, 1, 30, 16, 151, DateTimeKind.Local).AddTicks(8333));
+                        .HasDefaultValue(new DateTime(2022, 8, 18, 4, 8, 0, 340, DateTimeKind.Local).AddTicks(2956));
 
                     b.Property<bool?>("IsEdited")
                         .ValueGeneratedOnAdd()
@@ -142,7 +141,7 @@ namespace Sell_Online.Migrations
                     b.Property<DateTime?>("SoldDate")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("timestamp without time zone")
-                        .HasDefaultValue(new DateTime(2022, 8, 16, 1, 30, 16, 151, DateTimeKind.Local).AddTicks(8439));
+                        .HasDefaultValue(new DateTime(2022, 8, 18, 4, 8, 0, 340, DateTimeKind.Local).AddTicks(3070));
 
                     b.Property<string>("Title")
                         .HasColumnType("text");
@@ -266,12 +265,16 @@ namespace Sell_Online.Migrations
             modelBuilder.Entity("Sell_Online.Models.Chat", b =>
                 {
                     b.HasOne("Sell_Online.Models.User", "Reciever")
-                        .WithMany()
-                        .HasForeignKey("RecieverUserID");
+                        .WithMany("RecievedChats")
+                        .HasForeignKey("ReceiverID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.HasOne("Sell_Online.Models.User", "Sender")
-                        .WithMany("Chats")
-                        .HasForeignKey("SenderID");
+                        .WithMany("SentChats")
+                        .HasForeignKey("SenderID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("Sell_Online.Models.Message", b =>

@@ -44,18 +44,9 @@ namespace Sell_Online.Services
             return await _context.SaveChangesAsync() > 0;
         }
 
-        public async Task<bool> AddImages(Post post, PostImages postImage)
+        public async Task<bool> AddImages(PostImages postImage)
         {
-            if (post.PostImages != null)
-            {
-                post.PostImages.Add(postImage);
-            }
-            else
-            {
-                post.PostImages = new List<PostImages>();
-                post.PostImages.Add(postImage);
-            }
-
+            _context.PostImages.Add(postImage);
             return await _context.SaveChangesAsync() > 0;
         }
     }

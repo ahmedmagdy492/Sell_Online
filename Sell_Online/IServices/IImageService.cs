@@ -9,6 +9,6 @@ namespace Sell_Online.IServices
         PostImages GetImageByID(string imageId, string include);
         List<PostImages> GetImagesOfPost(string postId);
         Task<bool> RemoveImageOfPost(PostImages postImages);
-        Task<bool> AddImages(Post post, PostImages postImage);
+        Task<bool> AddImages(PostImages postImage);
     }
 }

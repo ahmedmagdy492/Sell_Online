@@ -10,7 +10,7 @@ namespace Sell_Online.Helpers
 {
     public static class ValidationHelper
     {
-        public static object ValidateInput(ModelStateDictionary.ValueEnumerable model)
+        public static object ExtractErrMsgs(ModelStateDictionary.ValueEnumerable model)
         {
             var errorModel = new
             {

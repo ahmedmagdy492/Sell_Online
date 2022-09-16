@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Sell_Online.DTO;
+using Sell_Online.Filters;
 using Sell_Online.Helpers;
 using Sell_Online.IServices;
 using Sell_Online.Mappers;
@@ -13,51 +14,37 @@ using System.Threading.Tasks;
 namespace Sell_Online.Controllers
 {
     [ApiController]
+    [ExecptionCatcherFilter]
     [Route("v1/Messages")]
     public class MessageController : ControllerBase
     {
         private readonly IMessageService _messageService;
-        private readonly IChatService _chatService;
 
-        public MessageController(IMessageService messageService, IChatService chatService)
+        public MessageController(IMessageService messageService)
         {
             _messageService = messageService;
-            _chatService = chatService;
         }
 
         [Authorize]
         [HttpGet]
-        public IActionResult GetListOfMessagesByChatID(string chatId)
+        public IActionResult GetListOfMessagesBySenderAndReceiverId(string receiverId)
         {
-            if (string.IsNullOrWhiteSpace(chatId))
-                return BadRequest(new { Message = "Invalid Chat ID" });
+            if (string.IsNullOrWhiteSpace(receiverId))
+                return BadRequest(new { Message = "Invalid Receiver Id", Errors = new List<string> { "Invalid Receiver Id" } });
 
-            var messages = _messageService.GetListOfMessagesOfChat(chatId);
+            var messages = _messageService.GetListOfMessagesOfUser(User.Claims.ToList()[0].Value, receiverId);
             return Ok(new { Message = "Success", Data = messages });
         }
 
         [Authorize]
         [HttpPost("SendMessage")]
-        public async Task<IActionResult> CreateMessage(CreateMessageDTO messageDto, string receiverId)
+        public async Task<IActionResult> CreateMessage(CreateMessageDTO messageDto)
         {
-            if (string.IsNullOrWhiteSpace(receiverId))
-                return BadRequest(new { Message = "Invalid Receiver ID", Errors = new List<string> { "Invalid Receiver ID" } });
-
             if (!ModelState.IsValid)
-                return BadRequest(new { Message = "Validation Errors", Errors = ValidationHelper.ValidateInput(ModelState.Values) });
+                return BadRequest(new { Message = "Validation Errors", Errors = ValidationHelper.ExtractErrMsgs(ModelState.Values) });
 
-            var chatModel = new CreateChatDTO
-            {
-                ReceiverID = receiverId,
-                SenderID = User.Claims.ToList()[0].Value
-            };
-            var createChatResult = await _chatService.CreateChat(ChatMapper.Map(chatModel));
-
-            if (!createChatResult)
-                return BadRequest(new { Message = "Error Occured while creating chat", Errors = new List<string> { "Error Occured while creating chat" } });
-
-            messageDto.ChatID = chatModel.ChatID;
-            var createMsgResult = await _messageService.CreateMessage(MessageMapper.MapMessage(messageDto));
+            messageDto.SenderID = User.Claims.ToList()[0].Value;
+            await _messageService.CreateMessage(MessageMapper.MapMessage(messageDto));
             return Ok(new { Message = "Message has been sent Successfully", Errors = new List<string> { } });
         }
 

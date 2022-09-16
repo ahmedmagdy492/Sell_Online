@@ -18,8 +18,10 @@ namespace Sell_Online.Models
         public string ID { get; set; }
         public string Content { get; set; }
         public DateTime? SentDate { get; set; }
-        public string ChatID { get; set; }
         public bool? Seen { get; set; }
-        public Chat Chat { get; set; }
+        public string SenderID { get; set; }
+        public string ReceiverID { get; set; }
+        public User Sender { get; set; }
+        public User Receiver { get; set; }
     }
 }

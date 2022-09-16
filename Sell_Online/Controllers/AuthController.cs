@@ -48,7 +48,7 @@ namespace Sell_Online.Controllers
         public IActionResult Login(LoginDTO loginDTO) 
         {
             if (!ModelState.IsValid)
-                return BadRequest(ValidationHelper.ValidateInput(ModelState.Values));
+                return BadRequest(ValidationHelper.ExtractErrMsgs(ModelState.Values));
 
             var hashedPassword = _sha256Hasher.Hash(loginDTO.Password);
 
@@ -74,7 +74,7 @@ namespace Sell_Online.Controllers
         public async Task<IActionResult> Register(RegisterUserDTO registerUserDTO)
         {
             if (!ModelState.IsValid)
-                return BadRequest(ValidationHelper.ValidateInput(ModelState.Values));
+                return BadRequest(ValidationHelper.ExtractErrMsgs(ModelState.Values));
 
             var user = _userService.GetUserBy(u => u.Email == registerUserDTO.Email);
 
@@ -94,8 +94,9 @@ namespace Sell_Online.Controllers
             var imageBytes = new Base64Converter().ConvertFromBase64(registerUserDTO.ProfileiImage);
 
             // saving image on disk
+            string fileName = $"{Guid.NewGuid()}.{registerUserDTO.ImageType}";
             var fileSaver = new FileSaver(_configuration);
-            fileSaver.SaveFile(imageBytes, registerUserDTO.ImageType);
+            fileSaver.SaveFile(fileName, imageBytes, registerUserDTO.ImageType);
 
             return Created("", new { Message = "User has been Created Successfully" });
         }
@@ -105,7 +106,7 @@ namespace Sell_Online.Controllers
         public async Task<IActionResult> ChangePassword(ChangePasswordDTO changePasswordDTO)
         {
             if (!ModelState.IsValid)
-                return BadRequest(ValidationHelper.ValidateInput(ModelState.Values));
+                return BadRequest(ValidationHelper.ExtractErrMsgs(ModelState.Values));
 
             string userId =  User.Claims.ToList()[0].Value;
 

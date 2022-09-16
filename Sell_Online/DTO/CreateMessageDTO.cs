@@ -11,7 +11,8 @@ namespace Sell_Online.DTO
     {
         [Required]
         public string Content { get; set; }
-        public DateTime? SentDate { get; set; }
-        public string ChatID { get; set; }
+        public String SentDate { get; set; }
+        public string SenderID { get; set; }
+        public string RecieverID { get; set; }
     }
 }
