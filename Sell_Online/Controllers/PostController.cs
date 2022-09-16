@@ -24,13 +24,15 @@ namespace Sell_Online.Controllers
         private readonly IConfiguration _configuration;
         private readonly INotificationService _notificationService;
         private readonly IViewsService _viewsService;
+        private readonly IUserService _userService;
 
-        public PostController(IPostService postService, IConfiguration configuration, INotificationService notificationService, IViewsService viewsService)
+        public PostController(IPostService postService, IConfiguration configuration, INotificationService notificationService, IViewsService viewsService, IUserService userService)
         {
             _postService = postService;
             _configuration = configuration;
             _notificationService = notificationService;
             _viewsService = viewsService;
+            _userService = userService;
         }
 
         [Authorize]
@@ -130,6 +132,9 @@ namespace Sell_Online.Controllers
                 return BadRequest(ValidationHelper.ExtractErrMsgs(ModelState.Values));
 
             var userId = User.Claims.ToList()[0].Value;
+            var user = _userService.GetUserBy(u => u.UserID == userId).FirstOrDefault();
+            if (user.IsVerified == false)
+                return BadRequest(new { Message = "Please Verify your Email First; Post is not Created" });
 
             var mappedPostObject = PostMapper.MapCreatePost(model);
             var createPost = await _postService.CreatePost(mappedPostObject, userId);
@@ -211,14 +216,17 @@ namespace Sell_Online.Controllers
             if (hasViewedPost != 0)
                 return Ok(new { Message = "No view was added" });
 
+            var addView = await _viewsService.ViewPost(post.PostID, userId);
+            if (!addView)
+                return BadRequest(new { Message = "No view was added due to a problem" });
+
             await _notificationService.CreateNotification(NotificationMapper.MapNotification(new CreateNotificationDTO
             {
                 Content = $"Someone has viewed your Post {post.Title}",
                 Title = $"Someone has viewed your Post",
                 UserID = post.UserID
             }));
-
-            var addView = await _viewsService.ViewPost(post.PostID, userId);
+            
             return Ok(new { Message = "View is Added", isAdded = addView });
         }
     }

@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
+using Sell_Online.Builders;
 using Sell_Online.DTO;
 using Sell_Online.Filters;
 using Sell_Online.Helpers;
@@ -23,29 +24,28 @@ namespace Sell_Online.Controllers
         private readonly IUserService _userService;
         private readonly IHashingService _sha256Hasher;
         private readonly IConfiguration _configuration;
+        private readonly IMailService _mailService;
+        private readonly IEmailVerificationService _emailVerificationService;
 
         public AuthController(
             IAuthService authService,
             IUserService userService,
             IHashingService sha256Hasher,
-            IConfiguration configuration
+            IConfiguration configuration,
+            IMailService mailService,
+            IEmailVerificationService emailVerificationService
             )
         {
             _authService = authService;
             _userService = userService;
             _sha256Hasher = sha256Hasher;
             _configuration = configuration;
-        }
-
-        [Authorize]
-        [HttpGet("IsValid")]
-        public IActionResult CheckTokenValidatiy()
-        {
-            return Ok();
+            _mailService = mailService;
+            this._emailVerificationService = emailVerificationService;
         }
 
         [HttpPost("Login")]
-        public IActionResult Login(LoginDTO loginDTO) 
+        public async Task<IActionResult> Login(LoginDTO loginDTO) 
         {
             if (!ModelState.IsValid)
                 return BadRequest(ValidationHelper.ExtractErrMsgs(ModelState.Values));
@@ -61,6 +61,19 @@ namespace Sell_Online.Controllers
 
             JwtGenerator jwtGenerator = new JwtGenerator(_configuration);
             string token = jwtGenerator.GenerateToken(user);
+
+            if(user.IsVerified == false)
+            {
+                try
+                {
+                    EmailBuilder emailBuilder = new EmailBuilder();
+                    emailBuilder.Subject("Ahmed From Sell Online");
+                    emailBuilder.ToEmail(user.Email);
+                    emailBuilder.Body(new VerifyEmailTemplate(_configuration, HttpContext, _emailVerificationService));
+                    await _mailService.SendEmailAsync(emailBuilder.Build());
+                }
+                catch (Exception) { }
+            }
 
             return Ok(new
             {
@@ -98,6 +111,12 @@ namespace Sell_Online.Controllers
             var fileSaver = new FileSaver(_configuration);
             fileSaver.SaveFile(fileName, imageBytes, registerUserDTO.ImageType);
 
+            EmailBuilder emailBuilder = new EmailBuilder();
+            emailBuilder.Subject("Ahmed From Sell Online");
+            emailBuilder.ToEmail(registerUserDTO.Email);
+            emailBuilder.Body(new VerifyEmailTemplate(_configuration, HttpContext, _emailVerificationService));
+            await _mailService.SendEmailAsync(emailBuilder.Build());
+
             return Created("", new { Message = "User has been Created Successfully" });
         }
 
@@ -126,6 +145,5 @@ namespace Sell_Online.Controllers
 
             return Ok( new { Message = "Password has been changed successfully" });
         }
-
     }
 }

@@ -11,6 +11,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Sell_Online.Data;
+using Sell_Online.DTO.Mail;
 using Sell_Online.Filters;
 using Sell_Online.Helpers;
 using Sell_Online.IServices;
@@ -47,8 +48,9 @@ namespace Sell_Online
             services.AddTransient<IImageService, ImageService>();
             services.AddTransient<IViewsService, ViewsService>();
             services.AddTransient<IMessageService, MessageService>();
+            services.AddTransient<IMailService, MailService>();
+            services.AddTransient<IEmailVerificationService, EmailVerificationService>();
             #endregion
-
 
             services.AddControllers(options => options.Filters.Add(new ExecptionCatcherFilter()))
                 .AddJsonOptions(config =>
@@ -57,6 +59,7 @@ namespace Sell_Online
                 });
             //.AddNewtonSoftJson();
 
+            services.AddControllersWithViews();
 
             services.AddAuthentication(options =>
             {
@@ -76,6 +79,8 @@ namespace Sell_Online
                         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["Jwt:Key"]))
                     };
                 });
+
+            services.Configure<MailSettings>(Configuration.GetSection("MailSettings"));
 
             services.AddDbContext<AppDBContext>(config =>
             {
