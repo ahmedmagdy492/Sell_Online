@@ -44,6 +44,13 @@ namespace Sell_Online.Controllers
             this._emailVerificationService = emailVerificationService;
         }
 
+        [Authorize]
+        [HttpGet("IsValid")]
+        public IActionResult IsValid()
+        {
+            return Ok();
+        }
+
         [HttpPost("Login")]
         public async Task<IActionResult> Login(LoginDTO loginDTO) 
         {

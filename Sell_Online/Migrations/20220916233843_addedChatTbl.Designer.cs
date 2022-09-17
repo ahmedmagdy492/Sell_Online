@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using Sell_Online.Data;
@@ -9,9 +10,10 @@ using Sell_Online.Data;
 namespace Sell_Online.Migrations
 {
     [DbContext(typeof(AppDBContext))]
-    partial class AppDBContextModelSnapshot : ModelSnapshot
+    [Migration("20220916233843_addedChatTbl")]
+    partial class addedChatTbl
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -31,9 +33,6 @@ namespace Sell_Online.Migrations
                         .HasColumnType("text");
 
                     b.Property<string>("SenderID")
-                        .HasColumnType("text");
-
-                    b.Property<string>("Title")
                         .HasColumnType("text");
 
                     b.HasKey("ChatID");
@@ -144,12 +143,12 @@ namespace Sell_Online.Migrations
                     b.Property<DateTime?>("CreationDate")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("timestamp without time zone")
-                        .HasDefaultValue(new DateTime(2022, 9, 17, 1, 44, 27, 416, DateTimeKind.Local).AddTicks(3578));
+                        .HasDefaultValue(new DateTime(2022, 9, 17, 1, 38, 43, 516, DateTimeKind.Local).AddTicks(8679));
 
                     b.Property<DateTime?>("EditDate")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("timestamp without time zone")
-                        .HasDefaultValue(new DateTime(2022, 9, 17, 1, 44, 27, 417, DateTimeKind.Local).AddTicks(4075));
+                        .HasDefaultValue(new DateTime(2022, 9, 17, 1, 38, 43, 517, DateTimeKind.Local).AddTicks(7150));
 
                     b.Property<bool?>("IsEdited")
                         .ValueGeneratedOnAdd()
@@ -165,7 +164,7 @@ namespace Sell_Online.Migrations
                     b.Property<DateTime?>("SoldDate")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("timestamp without time zone")
-                        .HasDefaultValue(new DateTime(2022, 9, 17, 1, 44, 27, 417, DateTimeKind.Local).AddTicks(4239));
+                        .HasDefaultValue(new DateTime(2022, 9, 17, 1, 38, 43, 517, DateTimeKind.Local).AddTicks(7264));
 
                     b.Property<string>("Title")
                         .HasColumnType("text");

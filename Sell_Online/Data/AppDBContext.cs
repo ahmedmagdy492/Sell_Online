@@ -25,6 +25,7 @@ namespace Sell_Online.Data
         public DbSet<Message> Messages { get; set; }
         public DbSet<PostCategory> PostCategories { get; set; }
         public DbSet<EmailVerificationToken> EmailVerificationTokens { get; set; }
+        public DbSet<Chat> Chats { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

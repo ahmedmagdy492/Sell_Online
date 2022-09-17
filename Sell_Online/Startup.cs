@@ -50,6 +50,8 @@ namespace Sell_Online
             services.AddTransient<IMessageService, MessageService>();
             services.AddTransient<IMailService, MailService>();
             services.AddTransient<IEmailVerificationService, EmailVerificationService>();
+            services.AddTransient<IChatService, ChatService>();
+            services.AddTransient<IMessageService, MessageService>();
             #endregion
 
             services.AddControllers(options => options.Filters.Add(new ExecptionCatcherFilter()))

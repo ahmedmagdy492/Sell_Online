@@ -11,15 +11,15 @@ using System.Threading.Tasks;
 namespace Sell_Online.Controllers
 {
     [ApiController]
+    [Route("v1/Chat")]
     [ExecptionCatcherFilter]
-    [Route("v1/Chats")]
-    public class ChatsController : ControllerBase
+    public class ChatController : ControllerBase
     {
-        private readonly IMessageService _messageService;
+        private readonly IChatService _chatService;
 
-        public ChatsController(IMessageService messageService)
+        public ChatController(IChatService chatService)
         {
-            _messageService = messageService;
+            _chatService = chatService;
         }
 
         [Authorize]
@@ -27,9 +27,7 @@ namespace Sell_Online.Controllers
         public IActionResult GetChatsOfUser()
         {
             var userId = User.Claims.ToList()[0].Value;
-
-            var chats = _messageService.GetChatsOfUser(userId);
-            return Ok(new { Message = "Success", Data = chats });
+            return Ok(new { Message = "Success", Data = _chatService.GetChatListByUserID(userId) });
         }
     }
 }
