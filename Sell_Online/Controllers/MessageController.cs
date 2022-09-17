@@ -61,6 +61,12 @@ namespace Sell_Online.Controllers
                 };
                 await _chatService.CreateChat(chat);
             }
+            else
+            {
+                chat.Title = message.Message;
+                chat.Date = DateTime.Now;
+                await _chatService.Update(chat);
+            }
 
             await _messageService.CreateMessage(new Message
             {

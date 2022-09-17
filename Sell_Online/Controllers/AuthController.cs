@@ -48,7 +48,7 @@ namespace Sell_Online.Controllers
         [HttpGet("IsValid")]
         public IActionResult IsValid()
         {
-            return Ok();
+            return Ok(new { Message = "Success" });
         }
 
         [HttpPost("Login")]

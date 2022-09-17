@@ -9,5 +9,7 @@ namespace Sell_Online.IServices
         Task<bool> CreateChat(Chat chat);
         List<Chat> GetChatListByUserID(string userId);
         List<Chat> GetChatByID(string chatId);
+        Chat GetChatBySenderAndReceiverIds(string senderId, string receiverId);
+        Task<bool> Update(Chat chat);
     }
 }

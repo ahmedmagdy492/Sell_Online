@@ -33,5 +33,17 @@ namespace Sell_Online.Services
         {
             return _context.Chats.Where(c => c.ChatID == chatId).ToList();
         }
+
+        public Chat GetChatBySenderAndReceiverIds(string senderId, string receiverId)
+        {
+            return _context.Chats.FirstOrDefault(c => (c.SenderID == senderId && c.ReceiverID == receiverId) || 
+            (c.SenderID == receiverId && c.ReceiverID == senderId));
+        }
+
+        public async Task<bool> Update(Chat chat)
+        {
+            _context.Entry(chat).State = Microsoft.EntityFrameworkCore.EntityState.Modified;
+            return (await _context.SaveChangesAsync()) > 0;
+        }
     }
 }
